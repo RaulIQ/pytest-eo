@@ -21,6 +21,7 @@ The pyeo rules enabled so far:
 | `PEO101` | `__init__` contains only assignments         |
 | `PEO102` | `@classmethod` contains only a `cls()` call  |
 | `PEO200` | every class is frozen (immutable)            |
+| `PEO300` | no class names ending in "-er"               |
 | `PEO400` | no static methods                            |
 | `PEO601` | no methods starting with `get`               |
 | `PEO602` | no getter methods                            |
