@@ -65,9 +65,14 @@ class SuppressionCheck(Check):
     ) -> Iterator[Violation]:
         codes = tuple(code.strip() for code in match["codes"].split(","))
         listed = f"# noqa: {', '.join(codes)}"
-        banned = tuple(code for code in codes if code.startswith(self.forbidden))
+        banned = tuple(
+            code for code in codes if code.startswith(self.forbidden)
+        )
         if banned:
-            message = f"{', '.join(banned)} cannot be suppressed: fix the code instead"
+            message = (
+                f"{', '.join(banned)} cannot be suppressed: "
+                "fix the code instead"
+            )
             yield Violation(self.name, "SUP002", *place, message)
         if not _REASON.match(match["rest"]):
             message = (

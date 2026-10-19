@@ -1,6 +1,6 @@
 # Locked configuration: projects cannot override it (only paths/excludes via [tool.eo]).
 target-version = "py311"
-line-length = 88
+line-length = 80
 
 [lint]
 preview = true
@@ -29,3 +29,17 @@ external = ["FIN", "PEO", "OVR"]
 "unittest.mock".msg = "No mocks: write a Fake that implements the same interface."
 "mock".msg = "No mocks: write a Fake that implements the same interface."
 "pytest_mock".msg = "No mocks: write a Fake that implements the same interface."
+
+[lint.pylint]
+max-args = 4
+max-statements = 10
+max-branches = 4
+max-returns = 2
+max-nested-blocks = 2
+max-public-methods = 5
+
+[lint.mccabe]
+max-complexity = 5
+
+[lint.flake8-tidy-imports]
+ban-relative-imports = "all"

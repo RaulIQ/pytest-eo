@@ -84,7 +84,8 @@ class RuffFormatCheck(Check):
         """Parse the concise report of ``ruff format --check``."""
         output = _expect(self.command.run(), self.name, (0, 1))
         pattern = re.compile(
-            r"^(?P<path>.+?):(?P<line>\d+):(?P<col>\d+): (?P<code>\w+): (?P<msg>.+)$"
+            r"^(?P<path>.+?):(?P<line>\d+):(?P<col>\d+): "
+            r"(?P<code>\w+): (?P<msg>.+)$"
         )
         found = (pattern.match(line) for line in output.stdout.splitlines())
         return tuple(
@@ -118,7 +119,9 @@ class MypyCheck(Check):
     def violations(self) -> tuple[Violation, ...]:
         """Parse one JSON object per line, skipping notes."""
         output = _expect(self.command.run(), self.name, (0, 1))
-        lines = (line for line in output.stdout.splitlines() if line.startswith("{"))
+        lines = (
+            line for line in output.stdout.splitlines() if line.startswith("{")
+        )
         items = (json.loads(line) for line in lines)
         return tuple(
             Violation(
@@ -164,7 +167,9 @@ class FlakeCheck(Check):
                 column=int(match["col"]),
                 message=match["msg"],
             )
-            for match in (pattern.match(line) for line in output.stdout.splitlines())
+            for match in (
+                pattern.match(line) for line in output.stdout.splitlines()
+            )
             if match
         )
         if output.status == 1 and not found:

@@ -37,7 +37,7 @@ class Profile(Protocol):
 @final
 @dataclass(frozen=True, slots=True)
 class Strict(Profile):
-    """ruff, ruff format, ``mypy --strict``, pyeo and suppressions over a project."""
+    """ruff, ruff format, ``mypy --strict``, pyeo and suppressions."""
 
     layout: Layout
     root: Path
@@ -59,7 +59,9 @@ class Strict(Profile):
             else ()
         )
         mypy_skipped = tuple(
-            arg for pattern in self.layout.excludes() for arg in ("--exclude", pattern)
+            arg
+            for pattern in self.layout.excludes()
+            for arg in ("--exclude", pattern)
         )
         return (
             RuffCheck(
@@ -109,7 +111,12 @@ class Strict(Profile):
             FlakeCheck(
                 PythonModule(
                     "flake8",
-                    ("--config", _bundled("flake8.ini"), *flake_skipped, *paths),
+                    (
+                        "--config",
+                        _bundled("flake8.ini"),
+                        *flake_skipped,
+                        *paths,
+                    ),
                     root,
                 ),
             ),

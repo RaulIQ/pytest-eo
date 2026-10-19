@@ -16,4 +16,6 @@ def test_strict_profile_source_gives_ruff_no_warning() -> None:
         ),
         package,
     ).run()
-    assert "warning" not in output.stderr, "ruff dont stay silent about strict.py"
+    assert "warning" not in output.stderr, (
+        "ruff dont stay silent about strict.py"
+    )

@@ -100,7 +100,9 @@ def test_fails_every_tool_on_sloppy_code(pytester: pytest.Pytester) -> None:
     assert result.parseoutcomes() == {"failed": 5}
 
 
-def test_refuses_to_suppress_the_ban_on_mocks(pytester: pytest.Pytester) -> None:
+def test_refuses_to_suppress_the_ban_on_mocks(
+    pytester: pytest.Pytester,
+) -> None:
     result = project(pytester, MOCKED).runpytest_subprocess("--eo")
     assert "[suppressions:SUP002]" in result.stdout.str()
 
@@ -115,7 +117,9 @@ def test_reports_class_names_ending_in_er(pytester: pytest.Pytester) -> None:
     assert "tidy/box.py:7:1: [flake8:PEO300]" in result.stdout.str()
 
 
-def test_reports_public_methods_after_private_ones(pytester: pytest.Pytester) -> None:
+def test_reports_public_methods_after_private_ones(
+    pytester: pytest.Pytester,
+) -> None:
     result = project(pytester, UNCONTRACTED).runpytest_subprocess("--eo")
     assert "tidy/box.py:8:5: [flake8:OVR100]" in result.stdout.str()
 
@@ -123,3 +127,18 @@ def test_reports_public_methods_after_private_ones(pytester: pytest.Pytester) ->
 def test_reports_blocks_nested_too_deep(pytester: pytest.Pytester) -> None:
     result = project(pytester, NESTED).runpytest_subprocess("--eo")
     assert "tidy/box.py:6:5: [ruff:PLR1702]" in result.stdout.str()
+
+
+def test_reports_functions_with_five_arguments(
+    pytester: pytest.Pytester,
+) -> None:
+    result = project(
+        pytester,
+        '"""A package with a wide function."""\n\n\n'
+        "def total(a: int, b: int, c: int, d: int, e: int) -> int:\n"
+        '    """Add the numbers up."""\n'
+        "    return a + b + c + d + e\n",
+    ).runpytest_subprocess("--eo")
+    assert "tidy/box.py:4:5: [ruff:PLR0913]" in result.stdout.str(), (
+        "five arguments dont fail the gate"
+    )

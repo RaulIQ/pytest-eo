@@ -11,7 +11,9 @@ def source(tmp_path: Path, text: str) -> FakeFiles:
 
 
 def test_passes_a_suppression_with_a_reason(tmp_path: Path) -> None:
-    files = source(tmp_path, "import os  # noqa: F401 - re-exported for plugins\n")
+    files = source(
+        tmp_path, "import os  # noqa: F401 - re-exported for plugins\n"
+    )
     assert SuppressionCheck(files, ("TID251",)).violations() == ()
 
 
@@ -26,7 +28,9 @@ def test_reports_the_line_of_the_suppression(tmp_path: Path) -> None:
 
 
 def test_reports_a_code_that_cannot_be_suppressed(tmp_path: Path) -> None:
-    files = source(tmp_path, "from unittest import mock  # noqa: TID251 - just once\n")
+    files = source(
+        tmp_path, "from unittest import mock  # noqa: TID251 - just once\n"
+    )
     assert SuppressionCheck(files, ("TID251",)).violations()[0].code == "SUP002"
 
 
@@ -36,7 +40,9 @@ def test_reports_a_forbidden_code_among_others(tmp_path: Path) -> None:
 
 
 def test_accepts_a_reason_after_a_type_ignore(tmp_path: Path) -> None:
-    text = "x: int = y  # type: ignore[assignment]  # noqa: F821 - y is injected\n"
+    text = (
+        "x: int = y  # type: ignore[assignment]  # noqa: F821 - y is injected\n"
+    )
     files = source(tmp_path, text)
     assert SuppressionCheck(files, ()).violations() == ()
 

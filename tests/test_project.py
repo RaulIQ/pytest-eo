@@ -9,7 +9,9 @@ def test_checks_src_and_tests_by_default(tmp_path: Path) -> None:
     assert Project(tmp_path).paths() == ("src", "tests")
 
 
-def test_checks_the_whole_directory_without_src_or_tests(tmp_path: Path) -> None:
+def test_checks_the_whole_directory_without_src_or_tests(
+    tmp_path: Path,
+) -> None:
     assert Project(tmp_path).paths() == (".",)
 
 

@@ -34,7 +34,7 @@ class EoItem(pytest.Item):  # noqa: PEO200 - pytest.Item is mutable by design
             raise StyleViolationsError(*found)
 
     @override
-    def repr_failure(
+    def repr_failure(  # noqa: PLR0911 - dispatches on the error type until #18
         self,
         excinfo: pytest.ExceptionInfo[BaseException],
         style: object = None,
@@ -59,7 +59,9 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         "--eo",
         action="store_true",
         default=False,
-        help="also run the strict style gate (ruff, ruff format, mypy --strict)",
+        help=(
+            "also run the strict style gate (ruff, ruff format, mypy --strict)"
+        ),
     )
 
 

@@ -24,13 +24,13 @@ class Layout(Protocol):
 @final
 @dataclass(frozen=True, slots=True)
 class Project(Layout):
-    """A directory with an optional ``[tool.eo]`` table in ``pyproject.toml``."""
+    """A directory whose ``pyproject.toml`` may hold a ``[tool.eo]`` table."""
 
     root: Path
 
     @override
     def paths(self) -> tuple[str, ...]:
-        """Directories to check: ``[tool.eo] paths``, else existing src/tests."""
+        """Directories to check: ``[tool.eo] paths`` or existing src/tests."""
         configured = self._settings().get("paths")
         if isinstance(configured, list) and configured:
             return tuple(str(item) for item in configured)
@@ -75,7 +75,7 @@ class ProjectFiles(Files):
 
     @override
     def files(self) -> tuple[Path, ...]:
-        """Sorted ``*.py`` files under every checked path that no exclude hides."""
+        """Sorted ``*.py`` files under the checked paths, minus excludes."""
         found = (
             file
             for path in self.layout.paths()
@@ -86,6 +86,7 @@ class ProjectFiles(Files):
     def _kept(self, file: Path) -> bool:
         relative = file.relative_to(self.root).as_posix()
         return not any(
-            fnmatch(relative, pattern) or relative.startswith(pattern.rstrip("/") + "/")
+            fnmatch(relative, pattern)
+            or relative.startswith(pattern.rstrip("/") + "/")
             for pattern in self.layout.excludes()
         )

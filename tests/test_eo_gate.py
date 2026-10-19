@@ -19,5 +19,7 @@ def test_keeps_the_failure_section_of_a_test(
     python.write_text(f'#!/bin/sh\nexec "{sys.executable}" "$@"\n')
     python.chmod(0o755)
     monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(pytester.path))
-    result = pytester.run(str(HOOK), stdin=b'{"hook_event_name": "Stop"}', timeout=180)
+    result = pytester.run(
+        str(HOOK), stdin=b'{"hook_event_name": "Stop"}', timeout=180
+    )
     assert "_ test_wobbles _" in result.stderr.str()
