@@ -2,6 +2,7 @@
 
 import tomllib
 from dataclasses import dataclass
+from fnmatch import fnmatch
 from pathlib import Path
 from typing import Protocol, final
 
@@ -54,3 +55,37 @@ class Project(Layout):
         tool = table.get("tool", {})
         eo = tool.get("eo", {}) if isinstance(tool, dict) else {}
         return eo if isinstance(eo, dict) else {}
+
+
+class Files(Protocol):
+    """Python files of a project that the gate reads itself."""
+
+    def files(self) -> tuple[Path, ...]:
+        """Every file to read, in a stable order."""
+        ...
+
+
+@final
+@dataclass(frozen=True, slots=True)
+class ProjectFiles(Files):
+    """Python files under the checked paths of a layout, minus its excludes."""
+
+    layout: Layout
+    root: Path
+
+    @override
+    def files(self) -> tuple[Path, ...]:
+        """Sorted ``*.py`` files under every checked path that no exclude hides."""
+        found = (
+            file
+            for path in self.layout.paths()
+            for file in (self.root / path).rglob("*.py")
+        )
+        return tuple(sorted({file for file in found if self._kept(file)}))
+
+    def _kept(self, file: Path) -> bool:
+        relative = file.relative_to(self.root).as_posix()
+        return not any(
+            fnmatch(relative, pattern) or relative.startswith(pattern.rstrip("/") + "/")
+            for pattern in self.layout.excludes()
+        )

@@ -2,8 +2,8 @@
 
 `pytest --eo` is a strict quality gate in the spirit of
 [Qulice](https://github.com/yegor256/qulice), built from ready-made tools.
-It has no rules of its own yet: the plugin runs the tools, reads their
-reports, and shows each tool as a separate test.
+The plugin runs the tools, reads their reports, and shows each tool as a
+separate test; its only rules of its own are about suppressions.
 
 | Test              | Tool                                           |
 |-------------------|------------------------------------------------|
@@ -11,6 +11,7 @@ reports, and shows each tool as a separate test.
 | `eo::ruff-format` | `ruff format --check`                          |
 | `eo::mypy`        | `mypy --strict`                                |
 | `eo::flake8`      | `flake8` with [pyeo](https://pypi.org/project/eo-styleguide/) (Elegant Objects rules) |
+| `eo::suppressions`| `# noqa` comments of the checked files         |
 
 The pyeo rules enabled so far:
 
@@ -30,7 +31,16 @@ must override a real method and every overriding method must say so.
 Python 3.11 has no `typing.override`; import it from `typing_extensions`.
 
 A rule may be suppressed on one line only, with a reason:
-`# noqa: PEO200 - pytest.Item is mutable by design`.
+`# noqa: PEO200 - pytest.Item is mutable by design`. `eo::suppressions`
+enforces it:
+
+| Code     | Rule                                                     |
+|----------|----------------------------------------------------------|
+| `SUP001` | a `# noqa: CODE` gives a reason after ` - `              |
+| `SUP002` | a `# noqa` never names `TID251`, the ban on mocks        |
+
+ruff already rejects a bare `# noqa` (`PGH004`), a bare `# type: ignore`
+(`PGH003`) and an unused `# noqa` for its own codes (`RUF100`).
 
 The configuration is bundled with the package (`src/pytest_eo/config/`)
 and cannot be overridden by a project. A project may only say what to
