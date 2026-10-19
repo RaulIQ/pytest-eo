@@ -18,7 +18,7 @@ from pytest_eo.command import PythonModule
 from pytest_eo.project import Layout, ProjectFiles
 from pytest_eo.suppression import SuppressionCheck
 
-# Codes that a "# noqa" may never name: the ban on mocks.
+# Codes that a suppression may never name: the ban on mocks.
 UNSUPPRESSIBLE = ("TID251",)
 
 
