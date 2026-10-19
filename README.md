@@ -1,37 +1,39 @@
 # pytest-eo
 
-`pytest --eo` — строгий барьер качества в духе [Qulice](https://github.com/yegor256/qulice),
-собранный из готовых инструментов. Своих правил пока нет: плагин запускает
-инструменты, читает их отчёты и показывает каждый инструмент как отдельный тест.
+`pytest --eo` is a strict quality gate in the spirit of
+[Qulice](https://github.com/yegor256/qulice), built from ready-made tools.
+It has no rules of its own yet: the plugin runs the tools, reads their
+reports, and shows each tool as a separate test.
 
-| Тест          | Инструмент                                   |
-|---------------|----------------------------------------------|
-| `eo::ruff`        | `ruff check`, все правила (`select = ["ALL"]`) |
+| Test              | Tool                                           |
+|-------------------|------------------------------------------------|
+| `eo::ruff`        | `ruff check`, all rules (`select = ["ALL"]`)   |
 | `eo::ruff-format` | `ruff format --check`                          |
 | `eo::mypy`        | `mypy --strict`                                |
 
-Конфигурация зашита в пакет (`src/pytest_eo/config/`) и не переопределяется
-проектом. Проект может задать только, что проверять и что пропускать:
+The configuration is bundled with the package (`src/pytest_eo/config/`)
+and cannot be overridden by a project. A project may only say what to
+check and what to skip:
 
 ```toml
 [tool.eo]
-paths = ["src", "tests"]    # по умолчанию: src и tests, если они есть
+paths = ["src", "tests"]    # default: src and tests, if they exist
 exclude = ["generated/"]
 ```
 
-## Использование
+## Usage
 
 ```sh
 pip install pytest-eo
 pytest --eo
 ```
 
-Без `--eo` плагин ничего не делает.
+Without `--eo` the plugin does nothing.
 
-## Разработка
+## Development
 
 ```sh
 python3 -m venv .venv
 .venv/bin/pip install -e .
-make check    # pytest --eo на самом плагине
+make check    # pytest --eo on the plugin itself
 ```
