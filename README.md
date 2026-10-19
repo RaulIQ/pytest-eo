@@ -51,6 +51,24 @@ pytest --eo
 
 Without `--eo` the plugin does nothing.
 
+## Claude Code hooks
+
+This repository runs the gate on every Claude Code session that works in it:
+after Claude edits a `.py`, `.toml`, `.ini` or `.cfg` file, and again before
+it finishes. When the gate is red, the findings go back to Claude and it has
+to fix them. If the gate is still red after one retry, Claude may stop, and
+you see a warning instead.
+
+To get the same in another project:
+
+1. Install pytest-eo into the project's `.venv`.
+2. Copy `.claude/hooks/eo-gate.sh` into the same place in that project and
+   make it executable.
+3. Copy the `hooks` block of `.claude/settings.json` into that project's
+   `.claude/settings.json`, merging it with what is already there.
+4. Commit both files, so everyone who opens the project with Claude Code gets
+   the gate, and run `/hooks` once in an open session to load them.
+
 ## Development
 
 ```sh

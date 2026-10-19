@@ -1,0 +1,29 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/eo-gate.sh",
+            "timeout": 180,
+            "statusMessage": "pytest --eo"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/eo-gate.sh",
+            "timeout": 180,
+            "statusMessage": "pytest --eo"
+          }
+        ]
+      }
+    ]
+  }
+}
