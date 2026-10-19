@@ -31,15 +31,12 @@ if [ "$event" = "PostToolUse" ]; then
   esac
 fi
 
-report=$("$python" -m pytest --eo -q 2>&1)
+report=$("$python" -m pytest --eo -q --tb=short 2>&1)
 if [ $? -eq 0 ]; then
   exit 0
 fi
 
-findings=$(printf '%s\n' "$report" \
-  | grep -E '^[^ ]+:[0-9]+:[0-9]+: \[|^tool failure:|^FAILED |^E  ' \
-  | grep -v '^FAILED eo::' \
-  | head -n 60)
+findings=$(printf '%s\n' "$report" | tail -n 120)
 summary=$(printf '%s\n' "$report" | tail -n 1)
 
 if [ "$event" = "Stop" ] && [ "$(field stop_hook_active)" = "True" ]; then
