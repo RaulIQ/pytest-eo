@@ -12,6 +12,9 @@ ignore = [
     "CPY001", # needs an author and a license: enable once the project picks them
 ]
 
+# Codes of pyeo, checked by flake8: lets ruff accept them in "# noqa" comments.
+external = ["FIN", "PEO"]
+
 [lint.per-file-ignores]
 "tests/**" = [
     "S101",    # assert is how pytest tests are written

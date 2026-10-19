@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Protocol, final
 
 
+@final
 @dataclass(frozen=True, slots=True)
 class Output:
     """What a finished tool printed and how it exited."""
@@ -16,6 +17,7 @@ class Output:
     status: int
 
 
+@final
 class ToolFailedError(RuntimeError):
     """A tool crashed or printed something we cannot understand."""
 

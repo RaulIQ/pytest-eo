@@ -124,3 +124,40 @@ class MypyCheck:
             for item in items
             if item["severity"] == "error"
         )
+
+
+@final
+@dataclass(frozen=True, slots=True)
+class FlakeCheck:
+    """``flake8`` with pyeo: rules of Elegant Objects."""
+
+    command: Command
+
+    @property
+    def name(self) -> str:
+        """Short name shown in the pytest report."""
+        return "flake8"
+
+    def violations(self) -> tuple[Violation, ...]:
+        """Parse the default ``path:row:col: CODE text`` report of flake8."""
+        output = _expect(self.command.run(), self.name, (0, 1))
+        pattern = re.compile(
+            r"^(?P<path>.+?):(?P<line>\d+):(?P<col>\d+): "
+            r"(?P<code>[A-Z]+\d+) (?P<msg>.+)$"
+        )
+        found = tuple(
+            Violation(
+                tool=self.name,
+                code=match["code"],
+                path=match["path"],
+                line=int(match["line"]),
+                column=int(match["col"]),
+                message=match["msg"],
+            )
+            for match in (pattern.match(line) for line in output.stdout.splitlines())
+            if match
+        )
+        if output.status == 1 and not found:
+            message = f"flake8 failed without a report: {output.stderr.strip()}"
+            raise ToolFailedError(message)
+        return found

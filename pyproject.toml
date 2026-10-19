@@ -5,13 +5,15 @@ build-backend = "hatchling.build"
 [project]
 name = "pytest-eo"
 version = "0.1.0"
-description = "pytest --eo: strict style gate that aggregates ruff and mypy --strict"
+description = "pytest --eo: strict style gate over ruff, mypy --strict and pyeo"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pytest>=8",
     "ruff==0.17.1",
     "mypy==2.4.0",
+    "flake8==7.4.1",
+    "eo-styleguide==0.1.1",
 ]
 
 [project.entry-points.pytest11]

@@ -12,6 +12,10 @@ SLOPPY = '''"""A sloppy package."""
 import os
 
 
+class Box:
+    pass
+
+
 def double(number):
     return number*2
 '''
@@ -32,9 +36,9 @@ def test_does_nothing_without_the_option(pytester: pytest.Pytester) -> None:
 
 def test_passes_every_tool_on_tidy_code(pytester: pytest.Pytester) -> None:
     result = project(pytester, TIDY).runpytest_subprocess("--eo")
-    assert result.parseoutcomes() == {"passed": 3}
+    assert result.parseoutcomes() == {"passed": 4}
 
 
 def test_fails_every_tool_on_sloppy_code(pytester: pytest.Pytester) -> None:
     result = project(pytester, SLOPPY).runpytest_subprocess("--eo")
-    assert result.parseoutcomes() == {"failed": 3}
+    assert result.parseoutcomes() == {"failed": 4}

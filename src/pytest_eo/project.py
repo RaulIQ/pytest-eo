@@ -3,8 +3,10 @@
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
+from typing import final
 
 
+@final
 @dataclass(frozen=True, slots=True)
 class Project:
     """A directory with an optional ``[tool.eo]`` table in ``pyproject.toml``."""

@@ -4,7 +4,13 @@ from dataclasses import dataclass
 from importlib import resources
 from typing import final
 
-from pytest_eo.check import Check, MypyCheck, RuffCheck, RuffFormatCheck
+from pytest_eo.check import (
+    Check,
+    FlakeCheck,
+    MypyCheck,
+    RuffCheck,
+    RuffFormatCheck,
+)
 from pytest_eo.command import PythonModule
 from pytest_eo.project import Project
 
@@ -16,7 +22,7 @@ def _bundled(name: str) -> str:
 @final
 @dataclass(frozen=True, slots=True)
 class Strict:
-    """ruff (all rules), ruff format and ``mypy --strict`` over a project."""
+    """ruff (all rules), ruff format, ``mypy --strict`` and pyeo over a project."""
 
     project: Project
 
@@ -30,6 +36,11 @@ class Strict:
             for arg in ("--extend-exclude", pattern)
         )
         ruff_config = ("--config", _bundled("ruff.toml"), *skipped)
+        flake_skipped = (
+            ("--extend-exclude", ",".join(self.project.excludes()))
+            if self.project.excludes()
+            else ()
+        )
         mypy_skipped = tuple(
             arg for pattern in self.project.excludes() for arg in ("--exclude", pattern)
         )
@@ -75,6 +86,13 @@ class Strict:
                         *mypy_skipped,
                         *paths,
                     ),
+                    root,
+                ),
+            ),
+            FlakeCheck(
+                PythonModule(
+                    "flake8",
+                    ("--config", _bundled("flake8.ini"), *flake_skipped, *paths),
                     root,
                 ),
             ),

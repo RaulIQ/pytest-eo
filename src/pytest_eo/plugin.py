@@ -1,6 +1,7 @@
 """The pytest plugin: ``pytest --eo`` adds one test item per aggregated tool."""
 
 from pathlib import Path
+from typing import final
 
 import pytest
 
@@ -8,31 +9,27 @@ from pytest_eo.check import Check
 from pytest_eo.command import ToolFailedError
 from pytest_eo.project import Project
 from pytest_eo.strict import Strict
-from pytest_eo.violation import Violation
 
 
+@final
 class StyleViolationsError(Exception):
-    """Raised by an item when its tool found violations."""
-
-    def __init__(self, violations: tuple[Violation, ...]) -> None:
-        """Remember what was found, to print it in the report."""
-        super().__init__(f"{len(violations)} violation(s)")
-        self.violations = violations
+    """Raised by an item when its tool found violations; its args are them."""
 
 
-class EoItem(pytest.Item):
+@final
+class EoItem(pytest.Item):  # noqa: PEO200 - pytest.Item is mutable by design
     """A test that passes when its tool reports nothing."""
 
     def __init__(self, *, check: Check, **kwargs: object) -> None:
-        """Bind the item to one check."""
-        super().__init__(**kwargs)  # type: ignore[arg-type]
-        self._check = check
+        """Bind the item to one check; pytest requires the super() call."""
+        super().__init__(**kwargs)  # type: ignore[arg-type]  # noqa: PEO101
+        self._check = check  # noqa: PEO101 - flagged only because of super()
 
     def runtest(self) -> None:
         """Run the tool; fail with its findings."""
         found = self._check.violations()
         if found:
-            raise StyleViolationsError(found)
+            raise StyleViolationsError(*found)
 
     def repr_failure(
         self,
@@ -42,7 +39,7 @@ class EoItem(pytest.Item):
         """Print one violation per line instead of a Python traceback."""
         error = excinfo.value
         if isinstance(error, StyleViolationsError):
-            return "\n".join(str(item) for item in error.violations)
+            return "\n".join(str(item) for item in error.args)
         if isinstance(error, ToolFailedError):
             return f"tool failure: {error}"
         return str(error)

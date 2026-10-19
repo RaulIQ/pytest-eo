@@ -1,8 +1,10 @@
 """A single style violation reported by one of the aggregated tools."""
 
 from dataclasses import dataclass
+from typing import final
 
 
+@final
 @dataclass(frozen=True, slots=True)
 class Violation:
     """What is wrong, where, and which tool says so."""
