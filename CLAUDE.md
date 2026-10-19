@@ -1,5 +1,6 @@
 <!-- Source: https://github.com/yegor256/prompt (README.txt) at commit 83ec21442f7349179a291445d0d369361273c891.
-     MIT License, Copyright (c) 2025 Yegor Bugayenko; see third_party/yegor256-prompt-LICENSE.txt. -->
+     MIT License, Copyright (c) 2025 Yegor Bugayenko; see third_party/yegor256-prompt-LICENSE.txt.
+     Changed for Linux: gsed, gfind, ggrep, gcat are written as sed, find, grep, cat. -->
 
 # Be Quality Dogmatic
 
@@ -7,7 +8,7 @@ Keep chat replies and your answers easy to comprehend.
 
 ## Tools
 
-Use GNU (GNU's Not Unix) tools such as `gsed`, `gfind`, `ggrep`, and `gcat`.
+Use GNU (GNU's Not Unix) tools such as `sed`, `find`, `grep`, and `cat`.
 Commit changes with `courier:commit-changes-to-git` skill.
 Submit pull requests with `courier:submit-a-pull-request` skill.
 File issues with `bugscribe:submit-an-issue` skill.
