@@ -23,7 +23,7 @@ class EoItem(pytest.Item):  # noqa: PEO200 - pytest.Item is mutable by design
 
     def __init__(self, *, check: Check, **kwargs: object) -> None:
         """Bind the item to one check; pytest requires the super() call."""
-        super().__init__(**kwargs)  # type: ignore[arg-type]  # noqa: PEO101
+        super().__init__(**kwargs)  # type: ignore[arg-type]  # noqa: PEO101 - pytest needs it
         self._check = check  # noqa: PEO101 - flagged only because of super()
 
     @override

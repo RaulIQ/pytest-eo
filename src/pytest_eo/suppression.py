@@ -1,0 +1,77 @@
+"""Suppression comments: each one gives a reason, and some codes allow none."""
+
+import io
+import re
+import tokenize
+from collections.abc import Iterator
+from dataclasses import dataclass
+from pathlib import Path
+from typing import final
+
+from typing_extensions import override
+
+from pytest_eo.check import Check
+from pytest_eo.project import Files
+from pytest_eo.violation import Violation
+
+_NOQA = re.compile(
+    r"#\s*noqa:\s*(?P<codes>[A-Z]+\d*(?:\s*,\s*[A-Z]+\d*)*)(?P<rest>[^#]*)",
+)
+_REASON = re.compile(r"^\s+-\s+\S")
+
+
+def _comments(file: Path) -> Iterator[tuple[int, int, str]]:
+    text = file.read_text(encoding="utf-8")
+    try:
+        tokens = tuple(tokenize.generate_tokens(io.StringIO(text).readline))
+    except (tokenize.TokenError, SyntaxError):
+        return
+    for token in tokens:
+        if token.type == tokenize.COMMENT:
+            yield token.start[0], token.start[1], token.string
+
+
+@final
+@dataclass(frozen=True, slots=True)
+class SuppressionCheck(Check):
+    """``# noqa`` comments that give no reason or silence a forbidden code."""
+
+    sources: Files
+    forbidden: tuple[str, ...]
+
+    @property
+    @override
+    def name(self) -> str:
+        """Short name shown in the pytest report."""
+        return "suppressions"
+
+    @override
+    def violations(self) -> tuple[Violation, ...]:
+        """Read the comments of every file, never running a tool."""
+        return tuple(
+            found for file in self.sources.files() for found in self._file(file)
+        )
+
+    def _file(self, file: Path) -> Iterator[Violation]:
+        for line, column, text in _comments(file):
+            for match in _NOQA.finditer(text):
+                place = (str(file), line, column + match.start() + 1)
+                yield from self._match(place, match)
+
+    def _match(
+        self,
+        place: tuple[str, int, int],
+        match: re.Match[str],
+    ) -> Iterator[Violation]:
+        codes = tuple(code.strip() for code in match["codes"].split(","))
+        listed = f"# noqa: {', '.join(codes)}"
+        banned = tuple(code for code in codes if code.startswith(self.forbidden))
+        if banned:
+            message = f"{', '.join(banned)} cannot be suppressed: fix the code instead"
+            yield Violation(self.name, "SUP002", *place, message)
+        if not _REASON.match(match["rest"]):
+            message = (
+                f"`{listed}` needs a reason: "
+                f"write `{listed} - why the rule cannot hold here`"
+            )
+            yield Violation(self.name, "SUP001", *place, message)

@@ -17,7 +17,14 @@ class Box:
 
 
 def double(number):
-    return number*2
+    return number*2  # noqa: E226
+'''
+
+MOCKED = '''"""A package that sneaks a mock in."""
+
+from unittest import mock  # noqa: TID251 - just this once
+
+__all__ = ["mock"]
 '''
 
 STATIC = '''"""A package with a static method."""
@@ -57,12 +64,17 @@ def test_does_nothing_without_the_option(pytester: pytest.Pytester) -> None:
 
 def test_passes_every_tool_on_tidy_code(pytester: pytest.Pytester) -> None:
     result = project(pytester, TIDY).runpytest_subprocess("--eo")
-    assert result.parseoutcomes() == {"passed": 4}
+    assert result.parseoutcomes() == {"passed": 5}
 
 
 def test_fails_every_tool_on_sloppy_code(pytester: pytest.Pytester) -> None:
     result = project(pytester, SLOPPY).runpytest_subprocess("--eo")
-    assert result.parseoutcomes() == {"failed": 4}
+    assert result.parseoutcomes() == {"failed": 5}
+
+
+def test_refuses_to_suppress_the_ban_on_mocks(pytester: pytest.Pytester) -> None:
+    result = project(pytester, MOCKED).runpytest_subprocess("--eo")
+    assert "[suppressions:SUP002]" in result.stdout.str()
 
 
 def test_reports_static_methods(pytester: pytest.Pytester) -> None:

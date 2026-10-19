@@ -15,7 +15,11 @@ from pytest_eo.check import (
     RuffFormatCheck,
 )
 from pytest_eo.command import PythonModule
-from pytest_eo.project import Layout
+from pytest_eo.project import Layout, ProjectFiles
+from pytest_eo.suppression import SuppressionCheck
+
+# Codes that a "# noqa" may never name: the ban on mocks.
+UNSUPPRESSIBLE = ("TID251",)
 
 
 def _bundled(name: str) -> str:
@@ -33,7 +37,7 @@ class Profile(Protocol):
 @final
 @dataclass(frozen=True, slots=True)
 class Strict(Profile):
-    """ruff (all rules), ruff format, ``mypy --strict`` and pyeo over a project."""
+    """ruff, ruff format, ``mypy --strict``, pyeo and suppressions over a project."""
 
     layout: Layout
     root: Path
@@ -109,4 +113,5 @@ class Strict(Profile):
                     root,
                 ),
             ),
+            SuppressionCheck(ProjectFiles(self.layout, root), UNSUPPRESSIBLE),
         )
