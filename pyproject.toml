@@ -13,11 +13,14 @@ dependencies = [
     "ruff==0.17.1",
     "mypy==2.4.0",
     "flake8==7.4.1",
-    "eo-styleguide==0.1.1",
+    "eo-styleguide @ git+https://github.com/RaulIQ/pyeo@a19814d1bc2ed738cc0e2c299355896b39e8468f",
 ]
 
 [project.entry-points.pytest11]
 eo = "pytest_eo.plugin"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pytest_eo"]
