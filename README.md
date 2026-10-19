@@ -52,3 +52,8 @@ python3 -m venv .venv
 .venv/bin/pip install -e .
 make check    # pytest --eo on the plugin itself
 ```
+
+pyeo comes from the `integration` branch of the
+[RaulIQ/pyeo](https://github.com/RaulIQ/pyeo) fork, pinned by commit.
+`make bump-pyeo` pins it to the latest commit of that branch, reinstalls it
+and runs `make check`; commit the changed `pyproject.toml` afterwards.
