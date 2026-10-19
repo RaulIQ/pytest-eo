@@ -49,6 +49,17 @@ class House:
 '''
 
 
+AGENTIVE = '''"""A package with a class named after a doer."""
+
+from typing import final
+
+
+@final
+class Parser:
+    """Turns text into numbers."""
+'''
+
+
 def project(pytester: pytest.Pytester, source: str) -> pytest.Pytester:
     pytester.makepyprojecttoml('[tool.eo]\npaths = ["src"]\n')
     package = pytester.path / "src" / "tidy"
@@ -80,6 +91,11 @@ def test_refuses_to_suppress_the_ban_on_mocks(pytester: pytest.Pytester) -> None
 def test_reports_static_methods(pytester: pytest.Pytester) -> None:
     result = project(pytester, STATIC).runpytest_subprocess("--eo")
     assert "[flake8:PEO400]" in result.stdout.str()
+
+
+def test_reports_class_names_ending_in_er(pytester: pytest.Pytester) -> None:
+    result = project(pytester, AGENTIVE).runpytest_subprocess("--eo")
+    assert "tidy/__init__.py:7:1: [flake8:PEO300]" in result.stdout.str()
 
 
 def test_reports_public_methods_after_private_ones(pytester: pytest.Pytester) -> None:
