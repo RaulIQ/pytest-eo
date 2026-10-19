@@ -23,6 +23,11 @@ The pyeo rules enabled so far:
 | `PEO400` | no static methods                            |
 | `PEO601` | no methods starting with `get`               |
 | `PEO602` | no getter methods                            |
+| `OVR100` | every public method is an `@override` of an interface method ([flake8-override](https://github.com/blablatdinov/flake8-override)) |
+
+mypy runs with `explicit-override` on top of `--strict`, so an `@override`
+must override a real method and every overriding method must say so.
+Python 3.11 has no `typing.override`; import it from `typing_extensions`.
 
 A rule may be suppressed on one line only, with a reason:
 `# noqa: PEO200 - pytest.Item is mutable by design`.

@@ -2,7 +2,10 @@
 
 from dataclasses import dataclass
 from importlib import resources
-from typing import final
+from pathlib import Path
+from typing import Protocol, final
+
+from typing_extensions import override
 
 from pytest_eo.check import (
     Check,
@@ -12,37 +15,47 @@ from pytest_eo.check import (
     RuffFormatCheck,
 )
 from pytest_eo.command import PythonModule
-from pytest_eo.project import Project
+from pytest_eo.project import Layout
 
 
 def _bundled(name: str) -> str:
     return str(resources.files("pytest_eo") / "config" / name)
 
 
-@final
-@dataclass(frozen=True, slots=True)
-class Strict:
-    """ruff (all rules), ruff format, ``mypy --strict`` and pyeo over a project."""
-
-    project: Project
+class Profile(Protocol):
+    """A set of checks to run over a project."""
 
     def checks(self) -> tuple[Check, ...]:
         """Build the checks; nothing runs until ``violations()`` is called."""
-        root = self.project.root
-        paths = self.project.paths()
+        ...
+
+
+@final
+@dataclass(frozen=True, slots=True)
+class Strict(Profile):
+    """ruff (all rules), ruff format, ``mypy --strict`` and pyeo over a project."""
+
+    layout: Layout
+    root: Path
+
+    @override
+    def checks(self) -> tuple[Check, ...]:
+        """Build the checks; nothing runs until ``violations()`` is called."""
+        root = self.root
+        paths = self.layout.paths()
         skipped = tuple(
             arg
-            for pattern in self.project.excludes()
+            for pattern in self.layout.excludes()
             for arg in ("--extend-exclude", pattern)
         )
         ruff_config = ("--config", _bundled("ruff.toml"), *skipped)
         flake_skipped = (
-            ("--extend-exclude", ",".join(self.project.excludes()))
-            if self.project.excludes()
+            ("--extend-exclude", ",".join(self.layout.excludes()))
+            if self.layout.excludes()
             else ()
         )
         mypy_skipped = tuple(
-            arg for pattern in self.project.excludes() for arg in ("--exclude", pattern)
+            arg for pattern in self.layout.excludes() for arg in ("--exclude", pattern)
         )
         return (
             RuffCheck(

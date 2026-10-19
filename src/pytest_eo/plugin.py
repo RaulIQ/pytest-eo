@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import final
 
 import pytest
+from typing_extensions import override
 
 from pytest_eo.check import Check
 from pytest_eo.command import ToolFailedError
@@ -25,16 +26,18 @@ class EoItem(pytest.Item):  # noqa: PEO200 - pytest.Item is mutable by design
         super().__init__(**kwargs)  # type: ignore[arg-type]  # noqa: PEO101
         self._check = check  # noqa: PEO101 - flagged only because of super()
 
+    @override
     def runtest(self) -> None:
         """Run the tool; fail with its findings."""
         found = self._check.violations()
         if found:
             raise StyleViolationsError(*found)
 
+    @override
     def repr_failure(
         self,
         excinfo: pytest.ExceptionInfo[BaseException],
-        style: object = None,  # noqa: ARG002 - signature is fixed by pytest
+        style: object = None,
     ) -> str:
         """Print one violation per line instead of a Python traceback."""
         error = excinfo.value
@@ -44,6 +47,7 @@ class EoItem(pytest.Item):  # noqa: PEO200 - pytest.Item is mutable by design
             return f"tool failure: {error}"
         return str(error)
 
+    @override
     def reportinfo(self) -> tuple[Path, int, str]:
         """Show ``eo::<tool>`` as the item location."""
         return self.path, 0, f"eo::{self._check.name}"
@@ -67,7 +71,7 @@ def pytest_collection_modifyitems(
     """Append one item per tool when ``--eo`` is given."""
     if not config.getoption("--eo"):
         return
-    project = Project(Path(config.rootpath))
+    root = Path(config.rootpath)
     items.extend(
         EoItem.from_parent(
             session,
@@ -75,5 +79,5 @@ def pytest_collection_modifyitems(
             nodeid=f"eo::{check.name}",
             check=check,
         )
-        for check in Strict(project).checks()
+        for check in Strict(Project(root), root).checks()
     )

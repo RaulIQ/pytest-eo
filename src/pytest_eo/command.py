@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol, final
 
+from typing_extensions import override
+
 
 @final
 @dataclass(frozen=True, slots=True)
@@ -32,13 +34,14 @@ class Command(Protocol):
 
 @final
 @dataclass(frozen=True, slots=True)
-class PythonModule:
+class PythonModule(Command):
     """``python -m <module> <args>`` in the interpreter that runs pytest."""
 
     module: str
     args: tuple[str, ...]
     cwd: Path
 
+    @override
     def run(self) -> Output:
         """Run the module and capture its output."""
         argv = (sys.executable, "-m", self.module, *self.args)

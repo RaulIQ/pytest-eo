@@ -30,6 +30,18 @@ class Money:
 '''
 
 
+UNCONTRACTED = '''"""A package with a public method after a private one."""
+
+
+class House:
+    def _floors(self):
+        return 1
+
+    def area(self):
+        return 5
+'''
+
+
 def project(pytester: pytest.Pytester, source: str) -> pytest.Pytester:
     pytester.makepyprojecttoml('[tool.eo]\npaths = ["src"]\n')
     package = pytester.path / "src" / "tidy"
@@ -56,3 +68,8 @@ def test_fails_every_tool_on_sloppy_code(pytester: pytest.Pytester) -> None:
 def test_reports_static_methods(pytester: pytest.Pytester) -> None:
     result = project(pytester, STATIC).runpytest_subprocess("--eo")
     assert "[flake8:PEO400]" in result.stdout.str()
+
+
+def test_reports_public_methods_after_private_ones(pytester: pytest.Pytester) -> None:
+    result = project(pytester, UNCONTRACTED).runpytest_subprocess("--eo")
+    assert "tidy/__init__.py:8:5: [flake8:OVR100]" in result.stdout.str()

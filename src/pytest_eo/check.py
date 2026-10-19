@@ -5,6 +5,8 @@ import re
 from dataclasses import dataclass
 from typing import Protocol, final
 
+from typing_extensions import override
+
 from pytest_eo.command import Command, Output, ToolFailedError
 from pytest_eo.violation import Violation
 
@@ -31,16 +33,18 @@ def _expect(output: Output, tool: str, allowed: tuple[int, ...]) -> Output:
 
 @final
 @dataclass(frozen=True, slots=True)
-class RuffCheck:
+class RuffCheck(Check):
     """``ruff check`` with the locked configuration."""
 
     command: Command
 
     @property
+    @override
     def name(self) -> str:
         """Short name shown in the pytest report."""
         return "ruff"
 
+    @override
     def violations(self) -> tuple[Violation, ...]:
         """Parse the JSON report of ``ruff check``."""
         output = _expect(self.command.run(), self.name, (0, 1))
@@ -64,16 +68,18 @@ class RuffCheck:
 
 @final
 @dataclass(frozen=True, slots=True)
-class RuffFormatCheck:
+class RuffFormatCheck(Check):
     """``ruff format --check``: files that the formatter would change."""
 
     command: Command
 
     @property
+    @override
     def name(self) -> str:
         """Short name shown in the pytest report."""
         return "ruff-format"
 
+    @override
     def violations(self) -> tuple[Violation, ...]:
         """Parse the concise report of ``ruff format --check``."""
         output = _expect(self.command.run(), self.name, (0, 1))
@@ -97,16 +103,18 @@ class RuffFormatCheck:
 
 @final
 @dataclass(frozen=True, slots=True)
-class MypyCheck:
+class MypyCheck(Check):
     """``mypy --strict`` with JSON output."""
 
     command: Command
 
     @property
+    @override
     def name(self) -> str:
         """Short name shown in the pytest report."""
         return "mypy"
 
+    @override
     def violations(self) -> tuple[Violation, ...]:
         """Parse one JSON object per line, skipping notes."""
         output = _expect(self.command.run(), self.name, (0, 1))
@@ -128,16 +136,18 @@ class MypyCheck:
 
 @final
 @dataclass(frozen=True, slots=True)
-class FlakeCheck:
+class FlakeCheck(Check):
     """``flake8`` with pyeo: rules of Elegant Objects."""
 
     command: Command
 
     @property
+    @override
     def name(self) -> str:
         """Short name shown in the pytest report."""
         return "flake8"
 
+    @override
     def violations(self) -> tuple[Violation, ...]:
         """Parse the default ``path:row:col: CODE text`` report of flake8."""
         output = _expect(self.command.run(), self.name, (0, 1))

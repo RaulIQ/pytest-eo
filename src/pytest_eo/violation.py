@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 from typing import final
 
+from typing_extensions import override
+
 
 @final
 @dataclass(frozen=True, slots=True)
@@ -16,6 +18,7 @@ class Violation:
     column: int
     message: str
 
+    @override
     def __str__(self) -> str:
         """Render as ``path:line:col: [tool:code] message``."""
         place = f"{self.path}:{self.line}:{self.column}"

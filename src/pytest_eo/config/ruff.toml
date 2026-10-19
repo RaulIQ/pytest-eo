@@ -13,7 +13,7 @@ ignore = [
 ]
 
 # Codes of pyeo, checked by flake8: lets ruff accept them in "# noqa" comments.
-external = ["FIN", "PEO"]
+external = ["FIN", "PEO", "OVR"]
 
 [lint.per-file-ignores]
 "tests/**" = [

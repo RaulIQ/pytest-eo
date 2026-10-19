@@ -3,16 +3,31 @@
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
-from typing import final
+from typing import Protocol, final
+
+from typing_extensions import override
+
+
+class Layout(Protocol):
+    """Which directories of a project to check and which to skip."""
+
+    def paths(self) -> tuple[str, ...]:
+        """Directories to check, relative to the project root."""
+        ...
+
+    def excludes(self) -> tuple[str, ...]:
+        """Glob patterns to skip."""
+        ...
 
 
 @final
 @dataclass(frozen=True, slots=True)
-class Project:
+class Project(Layout):
     """A directory with an optional ``[tool.eo]`` table in ``pyproject.toml``."""
 
     root: Path
 
+    @override
     def paths(self) -> tuple[str, ...]:
         """Directories to check: ``[tool.eo] paths``, else existing src/tests."""
         configured = self._settings().get("paths")
@@ -23,6 +38,7 @@ class Project:
         )
         return existing or (".",)
 
+    @override
     def excludes(self) -> tuple[str, ...]:
         """Glob patterns to skip: ``[tool.eo] exclude``."""
         configured = self._settings().get("exclude")
