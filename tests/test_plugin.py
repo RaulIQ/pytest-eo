@@ -20,6 +20,15 @@ def double(number):
     return number*2
 '''
 
+STATIC = '''"""A package with a static method."""
+
+
+class Money:
+    @staticmethod
+    def parse(text):
+        return int(text)
+'''
+
 
 def project(pytester: pytest.Pytester, source: str) -> pytest.Pytester:
     pytester.makepyprojecttoml('[tool.eo]\npaths = ["src"]\n')
@@ -42,3 +51,8 @@ def test_passes_every_tool_on_tidy_code(pytester: pytest.Pytester) -> None:
 def test_fails_every_tool_on_sloppy_code(pytester: pytest.Pytester) -> None:
     result = project(pytester, SLOPPY).runpytest_subprocess("--eo")
     assert result.parseoutcomes() == {"failed": 4}
+
+
+def test_reports_static_methods(pytester: pytest.Pytester) -> None:
+    result = project(pytester, STATIC).runpytest_subprocess("--eo")
+    assert "[flake8:PEO400]" in result.stdout.str()
