@@ -3,13 +3,16 @@ target-version = "py311"
 line-length = 88
 
 [lint]
+preview = true
 select = ["ALL"]
 ignore = [
-    "D203",   # conflicts with D211
-    "D213",   # conflicts with D212
-    "COM812", # conflicts with the formatter
-    "ISC001", # conflicts with the formatter
-    "CPY001", # needs an author and a license: enable once the project picks them
+    "incorrect-blank-line-before-class",         # conflicts with blank-line-before-class
+    "multi-line-summary-second-line",            # conflicts with multi-line-summary-first-line
+    "missing-trailing-comma",                    # conflicts with the formatter
+    "single-line-implicit-string-concatenation", # conflicts with the formatter
+    "missing-copyright-notice",                  # needs an author and a license: enable once the project picks them
+    "DOC",                                       # docstrings explain purpose, not returns and raises
+    "noqa-comments",                             # eo::suppressions reads only "# noqa" for now, see #27
 ]
 
 # Codes of pyeo, checked by flake8: lets ruff accept them in "# noqa" comments.
@@ -17,9 +20,9 @@ external = ["FIN", "PEO", "OVR"]
 
 [lint.per-file-ignores]
 "tests/**" = [
-    "S101",    # assert is how pytest tests are written
-    "PLR2004", # literals in expectations are fine
-    "D",       # test names are the documentation
+    "assert",                 # assert is how pytest tests are written
+    "magic-value-comparison", # literals in expectations are fine
+    "D",                      # test names are the documentation
 ]
 
 [lint.flake8-tidy-imports.banned-api]

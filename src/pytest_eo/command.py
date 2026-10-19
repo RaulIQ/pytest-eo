@@ -1,6 +1,6 @@
 """Running an external tool: the only place that touches subprocesses."""
 
-import subprocess
+import subprocess  # noqa: S404 - the only module that runs external tools
 import sys
 from dataclasses import dataclass
 from pathlib import Path

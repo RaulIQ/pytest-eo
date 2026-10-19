@@ -60,11 +60,28 @@ class Parser:
 '''
 
 
+NESTED = '''"""A package with blocks nested too deep."""
+
+
+def depth(flag: bool) -> int:
+    """Count how deep the flag goes."""
+    if flag:
+        if flag:
+            if flag:
+                if flag:
+                    if flag:
+                        if flag:
+                            return 6
+    return 0
+'''
+
+
 def project(pytester: pytest.Pytester, source: str) -> pytest.Pytester:
     pytester.makepyprojecttoml('[tool.eo]\npaths = ["src"]\n')
     package = pytester.path / "src" / "tidy"
     package.mkdir(parents=True)
-    (package / "__init__.py").write_text(source)
+    (package / "__init__.py").write_text('"""A package under the gate."""\n')
+    (package / "box.py").write_text(source)
     return pytester
 
 
@@ -95,9 +112,14 @@ def test_reports_static_methods(pytester: pytest.Pytester) -> None:
 
 def test_reports_class_names_ending_in_er(pytester: pytest.Pytester) -> None:
     result = project(pytester, AGENTIVE).runpytest_subprocess("--eo")
-    assert "tidy/__init__.py:7:1: [flake8:PEO300]" in result.stdout.str()
+    assert "tidy/box.py:7:1: [flake8:PEO300]" in result.stdout.str()
 
 
 def test_reports_public_methods_after_private_ones(pytester: pytest.Pytester) -> None:
     result = project(pytester, UNCONTRACTED).runpytest_subprocess("--eo")
-    assert "tidy/__init__.py:8:5: [flake8:OVR100]" in result.stdout.str()
+    assert "tidy/box.py:8:5: [flake8:OVR100]" in result.stdout.str()
+
+
+def test_reports_blocks_nested_too_deep(pytester: pytest.Pytester) -> None:
+    result = project(pytester, NESTED).runpytest_subprocess("--eo")
+    assert "tidy/box.py:6:5: [ruff:PLR1702]" in result.stdout.str()
