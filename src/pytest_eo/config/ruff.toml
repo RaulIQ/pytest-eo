@@ -1,0 +1,25 @@
+# Locked configuration: projects cannot override it (only paths/excludes via [tool.eo]).
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = ["ALL"]
+ignore = [
+    "D203",   # conflicts with D211
+    "D213",   # conflicts with D212
+    "COM812", # conflicts with the formatter
+    "ISC001", # conflicts with the formatter
+    "CPY001", # needs an author and a license: enable once the project picks them
+]
+
+[lint.per-file-ignores]
+"tests/**" = [
+    "S101",    # assert is how pytest tests are written
+    "PLR2004", # literals in expectations are fine
+    "D",       # test names are the documentation
+]
+
+[lint.flake8-tidy-imports.banned-api]
+"unittest.mock".msg = "No mocks: write a Fake that implements the same interface."
+"mock".msg = "No mocks: write a Fake that implements the same interface."
+"pytest_mock".msg = "No mocks: write a Fake that implements the same interface."

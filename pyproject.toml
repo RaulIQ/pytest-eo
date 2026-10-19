@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pytest-eo"
+version = "0.1.0"
+description = "pytest --eo: strict style gate that aggregates ruff and mypy --strict"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pytest>=8",
+    "ruff==0.17.1",
+    "mypy==2.4.0",
+]
+
+[project.entry-points.pytest11]
+eo = "pytest_eo.plugin"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pytest_eo"]
+
+[tool.eo]
+paths = ["src", "tests"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
