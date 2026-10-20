@@ -3,20 +3,20 @@
 from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
-from typing import Protocol, final
+from typing import final
 
 from typing_extensions import override
 
-from pytest_eo.check import (
-    Check,
-    FlakeCheck,
-    MypyCheck,
-    RuffCheck,
-    RuffFormatCheck,
-)
-from pytest_eo.command import PythonModule
-from pytest_eo.project import Layout, ProjectFiles
-from pytest_eo.suppression import SuppressionCheck
+from pytest_eo.check import Check
+from pytest_eo.flake_check import FlakeCheck
+from pytest_eo.layout import Layout
+from pytest_eo.mypy_check import MypyCheck
+from pytest_eo.profile import Profile
+from pytest_eo.project_files import ProjectFiles
+from pytest_eo.python_module import PythonModule
+from pytest_eo.ruff_check import RuffCheck
+from pytest_eo.ruff_format_check import RuffFormatCheck
+from pytest_eo.suppression_check import SuppressionCheck
 
 # The rule a suppression may never name, by code or by name: the ban on mocks.
 UNSUPPRESSIBLE = ("TID251", "banned-api")
@@ -24,14 +24,6 @@ UNSUPPRESSIBLE = ("TID251", "banned-api")
 
 def _bundled(name: str) -> str:
     return str(resources.files("pytest_eo") / "config" / name)
-
-
-class Profile(Protocol):
-    """A set of checks to run over a project."""
-
-    def checks(self) -> tuple[Check, ...]:
-        """Build the checks; nothing runs until ``violations()`` is called."""
-        ...
 
 
 @final

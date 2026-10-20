@@ -1,8 +1,8 @@
 from hamcrest import assert_that, empty, equal_to, has_length
 
-from pytest_eo.check import RuffFormatCheck
-from pytest_eo.command import Output
-from tests.fakes import FakeCommand
+from pytest_eo.output import Output
+from pytest_eo.ruff_format_check import RuffFormatCheck
+from tests.support.fake_command import FakeCommand
 
 
 def test_reports_nothing_when_files_are_formatted() -> None:

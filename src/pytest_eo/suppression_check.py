@@ -11,7 +11,7 @@ from typing import final
 from typing_extensions import override
 
 from pytest_eo.check import Check
-from pytest_eo.project import Files
+from pytest_eo.files import Files
 from pytest_eo.violation import Violation
 
 _FORMS = (

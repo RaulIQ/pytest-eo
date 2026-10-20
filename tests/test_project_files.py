@@ -2,7 +2,8 @@ from pathlib import Path
 
 from hamcrest import assert_that, equal_to
 
-from pytest_eo.project import Project, ProjectFiles
+from pytest_eo.project import Project
+from pytest_eo.project_files import ProjectFiles
 
 
 def tree(tmp_path: Path, *names: str) -> Path:

@@ -2,7 +2,7 @@ from pathlib import Path
 
 from hamcrest import assert_that, equal_to
 
-from pytest_eo.command import PythonModule
+from pytest_eo.python_module import PythonModule
 
 
 def test_strict_profile_source_gives_ruff_no_warning() -> None:

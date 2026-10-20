@@ -19,7 +19,7 @@ def test_keeps_the_failure_section_of_a_test(
     python.chmod(0o755)
     monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(pytester.path))
     result = pytester.run(
-        str(Path(__file__).parent.parent / ".claude" / "hooks" / "eo-gate.sh"),
+        str(Path(__file__).parents[2] / ".claude" / "hooks" / "eo-gate.sh"),
         stdin=b'{"hook_event_name": "Stop"}',
         timeout=180,
     )

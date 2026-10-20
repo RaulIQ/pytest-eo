@@ -2,7 +2,7 @@ import ast
 
 from hamcrest import assert_that, empty, equal_to
 
-from pytest_eo.angry import AngryTests
+from pytest_eo.angry_tests import AngryTests
 
 
 def codes(code: str, filename: str) -> tuple[str, ...]:

@@ -5,23 +5,17 @@ import re
 from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import PurePath
-from typing import Protocol, final
+from typing import final
 
 from typing_extensions import override
+
+from pytest_eo.extension import Extension
 
 _NEGATION = re.compile(
     r"\b(?:not|never|no|nothing|cannot|dont|doesnt|didnt|isnt|arent|wasnt"
     r"|werent|wont|cant)\b",
     re.IGNORECASE,
 )
-
-
-class Extension(Protocol):
-    """A flake8 plugin: the problems of one parsed file."""
-
-    def run(self) -> Iterator[tuple[int, int, str, type[object]]]:
-        """Yield the line, column, message and plugin of every problem."""
-        ...
 
 
 def _tests(

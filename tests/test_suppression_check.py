@@ -2,8 +2,8 @@ from pathlib import Path
 
 from hamcrest import assert_that, contains_string, empty, equal_to
 
-from pytest_eo.suppression import SuppressionCheck
-from tests.fakes import FakeFiles
+from pytest_eo.suppression_check import SuppressionCheck
+from tests.support.fake_files import FakeFiles
 
 
 def source(tmp_path: Path, text: str) -> FakeFiles:

@@ -3,9 +3,10 @@ import json
 import pytest
 from hamcrest import assert_that, empty, equal_to
 
-from pytest_eo.check import RuffCheck
-from pytest_eo.command import Output, ToolFailedError
-from tests.fakes import FakeCommand
+from pytest_eo.output import Output
+from pytest_eo.ruff_check import RuffCheck
+from pytest_eo.tool_failed_error import ToolFailedError
+from tests.support.fake_command import FakeCommand
 
 
 def test_reports_nothing_when_ruff_is_clean() -> None:

@@ -26,7 +26,7 @@ dev = ["coverage>=7.10"]
 eo = "pytest_eo.plugin"
 
 [project.entry-points."flake8.extension"]
-TST = "pytest_eo.angry:AngryTests"
+TST = "pytest_eo.angry_tests:AngryTests"
 
 [tool.hatch.metadata]
 allow-direct-references = true
