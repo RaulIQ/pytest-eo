@@ -218,3 +218,70 @@ def test_names_the_form_of_a_wide_suppression(tmp_path: Path) -> None:
         contains_string("`# ruff: disable`"),
         "the message doesnt name the form of the wide suppression",
     )
+
+
+def test_reports_a_file_wide_flake8_noqa(tmp_path: Path) -> None:
+    files = source(tmp_path, "# flake8: noqa\nclass Box:\n    pass\n")
+    assert_that(
+        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
+        equal_to(("SUP003",)),
+        "a file-wide flake8 noqa doesnt fail",
+    )
+
+
+def test_reports_a_mypy_ignore_errors(tmp_path: Path) -> None:
+    files = source(tmp_path, "# mypy: ignore-errors\ndef size(x):\n    pass\n")
+    assert_that(
+        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
+        equal_to(("SUP003",)),
+        "a mypy ignore-errors doesnt fail",
+    )
+
+
+def test_reports_a_mypy_disable_error_code(tmp_path: Path) -> None:
+    files = source(
+        tmp_path, '# mypy: disable-error-code="no-untyped-def"\nimport os\n'
+    )
+    assert_that(
+        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
+        equal_to(("SUP003",)),
+        "a mypy disable-error-code doesnt fail",
+    )
+
+
+def test_reports_any_inline_mypy_configuration(tmp_path: Path) -> None:
+    files = source(tmp_path, "# mypy: allow-untyped-defs\ndef raw(x): ...\n")
+    assert_that(
+        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
+        equal_to(("SUP003",)),
+        "an inline mypy configuration doesnt fail",
+    )
+
+
+def test_reports_a_type_ignore_at_the_top_of_a_file(tmp_path: Path) -> None:
+    files = source(
+        tmp_path, "#!/usr/bin/env python\n# type: ignore\nx: int = ''\n"
+    )
+    assert_that(
+        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
+        equal_to(("SUP003",)),
+        "a type ignore at the top of a file doesnt fail",
+    )
+
+
+def test_ignores_a_type_ignore_below_the_first_code(tmp_path: Path) -> None:
+    files = source(tmp_path, '"""Pipe."""\n# type: ignore\nwidth = 12\n')
+    assert_that(
+        SuppressionCheck(files, ()).violations(),
+        empty(),
+        "a type ignore below the first code isnt left alone",
+    )
+
+
+def test_names_a_flake8_form_in_the_message(tmp_path: Path) -> None:
+    files = source(tmp_path, "#flake8:noqa\nimport os\n")
+    assert_that(
+        SuppressionCheck(files, ()).violations()[0].message,
+        contains_string("`# flake8:noqa`"),
+        "the message doesnt name the flake8 form",
+    )

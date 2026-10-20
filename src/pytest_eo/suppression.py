@@ -31,18 +31,22 @@ _FORMS = (
     ),
 )
 _REASON = re.compile(r"^\s+-\s+\S")
-_WIDE = re.compile(r"#\s*ruff:\s*(?P<kind>noqa|file-ignore|disable)\b")
+_SPREAD = r"ruff:\s*(?:noqa|file-ignore|disable)\b|flake8:\s*noqa\b|mypy:"
+_WIDE = re.compile(rf"#\s*(?P<kind>{_SPREAD})")
+_HEADER = re.compile(rf"#\s*(?P<kind>{_SPREAD}|type:\s*ignore\b(?!\[))")
+_SILENT = (tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE, tokenize.ENCODING)
 
 
-def _comments(file: Path) -> Iterator[tuple[int, int, str]]:
+def _comments(file: Path) -> Iterator[tuple[int, int, str, bool]]:
     text = file.read_text(encoding="utf-8")
     try:
         tokens = tuple(tokenize.generate_tokens(io.StringIO(text).readline))
     except (tokenize.TokenError, SyntaxError):
         return
+    code = next(token.start for token in tokens if token.type not in _SILENT)
     for token in tokens:
         if token.type == tokenize.COMMENT:
-            yield token.start[0], token.start[1], token.string
+            yield (*token.start, token.string, token.start < code)
 
 
 def _matches(text: str) -> Iterator[tuple[str, re.Match[str]]]:
@@ -57,7 +61,7 @@ class SuppressionCheck(Check):
     """Suppressions without a reason, of a forbidden rule, or wider than a line.
 
     It reads ``# noqa: CODE`` and ``# ruff: ignore[CODE-OR-NAME]``, and
-    refuses the file-wide and range forms of ruff outright.
+    refuses the file-wide and range forms of ruff, flake8 and mypy outright.
     """
 
     sources: Files
@@ -77,19 +81,19 @@ class SuppressionCheck(Check):
         )
 
     def _file(self, file: Path) -> Iterator[Violation]:
-        for line, column, text in _comments(file):
+        for line, column, text, header in _comments(file):
             for template, match in _matches(text):
                 place = (str(file), line, column + match.start() + 1)
                 yield from self._match(place, template, match)
-            for match in _WIDE.finditer(text):
+            for match in (_HEADER if header else _WIDE).finditer(text):
                 yield Violation(
                     self.name,
                     "SUP003",
                     str(file),
                     line,
                     column + match.start() + 1,
-                    f"`# ruff: {match['kind']}` suppresses beyond its own "
-                    "line: use `# ruff: ignore[name] - why` on that line",
+                    f"`# {match['kind']}` suppresses beyond its own line: "
+                    "suppress on that one line instead, with a reason",
                 )
 
     def _match(

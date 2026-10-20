@@ -283,3 +283,20 @@ def test_refuses_to_suppress_the_ban_on_mocks_file_wide(
         contains_string("tidy/box.py:1:1: [suppressions:SUP003]"),
         "a file-wide ruff suppression doesnt fail the gate",
     )
+
+
+def test_refuses_to_switch_flake8_off_for_a_file(
+    pytester: pytest.Pytester,
+) -> None:
+    result = project(
+        pytester,
+        "# flake8: noqa\n"
+        '"""A package that hides a mutable class from flake8."""\n\n\n'
+        "class Box:\n"
+        '    """A box."""\n',
+    ).runpytest_subprocess("--eo")
+    assert_that(
+        result.stdout.str(),
+        contains_string("tidy/box.py:1:1: [suppressions:SUP003]"),
+        "a file-wide flake8 noqa doesnt fail the gate",
+    )
