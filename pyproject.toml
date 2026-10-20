@@ -14,7 +14,7 @@ dependencies = [
     "mypy==2.4.0",
     "flake8==7.4.1",
     "eo-styleguide @ git+https://github.com/RaulIQ/pyeo@b78fe981b8311dfb3a1b622a88c2dd8e5a15b8d1",
-    "flake8-override @ git+https://github.com/RaulIQ/flake8-override@ecea1e0ee5cf9d5c3ac646e3dc3073448fd4b366",
+    "flake8-override==0.1.1",
     "typing_extensions>=4.4",
     "PyHamcrest>=2.1",
 ]
