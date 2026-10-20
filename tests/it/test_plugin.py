@@ -113,6 +113,23 @@ def test_reports_class_names_ending_in_er(pytester: pytest.Pytester) -> None:
     )
 
 
+def test_reports_reflection(pytester: pytest.Pytester) -> None:
+    result = project(
+        pytester,
+        '"""A package that asks an object for its type."""\n'
+        "\n"
+        "\n"
+        "def size(box: object) -> int:\n"
+        '    """Count the items of a list and nothing else."""\n'
+        "    return len(box) if isinstance(box, list) else 0\n",
+    ).runpytest_subprocess("--eo")
+    assert_that(
+        result.stdout.str(),
+        contains_string("tidy/box.py:6:24: [flake8:PEO700]"),
+        "a call to isinstance doesnt fail the gate",
+    )
+
+
 def test_reports_public_methods_after_private_ones(
     pytester: pytest.Pytester,
 ) -> None:

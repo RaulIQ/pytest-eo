@@ -8,7 +8,6 @@ from typing_extensions import override
 
 from pytest_eo.check import Check
 from pytest_eo.style_violations_error import StyleViolationsError
-from pytest_eo.tool_failed_error import ToolFailedError
 
 
 @final
@@ -28,18 +27,13 @@ class EoItem(pytest.Item):  # noqa: PEO200 - pytest.Item is mutable by design
             raise StyleViolationsError(*found)
 
     @override
-    def repr_failure(  # ruff: ignore[too-many-return-statements] - dispatches on the error type until #18
+    def repr_failure(
         self,
         excinfo: pytest.ExceptionInfo[BaseException],
         style: object = None,
     ) -> str:
-        """Print one violation per line instead of a Python traceback."""
-        error = excinfo.value
-        if isinstance(error, StyleViolationsError):
-            return "\n".join(str(item) for item in error.args)
-        if isinstance(error, ToolFailedError):
-            return f"tool failure: {error}"
-        return str(error)
+        """Let the error show itself instead of a Python traceback."""
+        return str(excinfo.value)
 
     @override
     def reportinfo(self) -> tuple[Path, int, str]:

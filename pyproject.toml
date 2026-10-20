@@ -13,7 +13,7 @@ dependencies = [
     "ruff==0.17.1",
     "mypy==2.4.0",
     "flake8==7.4.1",
-    "eo-styleguide @ git+https://github.com/RaulIQ/pyeo@b78fe981b8311dfb3a1b622a88c2dd8e5a15b8d1",
+    "eo-styleguide @ git+https://github.com/RaulIQ/pyeo@fd073aafa1b21144d66abc1e096f096029cbc321",
     "flake8-override==0.1.1",
     "typing_extensions>=4.4",
     "PyHamcrest>=2.1",

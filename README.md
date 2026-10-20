@@ -27,6 +27,7 @@ The pyeo rules enabled so far:
 | `PEO400` | no static methods                            |
 | `PEO601` | no methods starting with `get`               |
 | `PEO602` | no getter methods                            |
+| `PEO700` | no introspection, casting, or reflection     |
 | `OVR100` | every public method is an `@override` of an interface method ([flake8-override](https://github.com/blablatdinov/flake8-override)) |
 
 mypy runs with `explicit-override` on top of `--strict`, so an `@override`
