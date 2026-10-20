@@ -54,10 +54,48 @@ def _asserted(test: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
     )
 
 
+def _assertions(tree: ast.Module) -> Iterator[tuple[int, int, str]]:
+    return (
+        (
+            test.lineno,
+            test.col_offset,
+            "TST100 test must end with its only assertion",
+        )
+        for test in _tests(tree)
+        if not _asserted(test)
+    )
+
+
+def _shared(statement: ast.stmt) -> bool:
+    match statement:
+        case (
+            ast.Assign(targets=[ast.Name(id="pytest_plugins")])
+            | ast.AnnAssign(target=ast.Name(id="pytest_plugins"))
+        ):
+            shared = False
+        case ast.Assign() | ast.AnnAssign() | ast.AugAssign():
+            shared = True
+        case _:
+            shared = False
+    return shared
+
+
+def _constants(tree: ast.Module) -> Iterator[tuple[int, int, str]]:
+    return (
+        (
+            statement.lineno,
+            statement.col_offset,
+            "TST200 test module must not share constants between its tests",
+        )
+        for statement in tree.body
+        if _shared(statement)
+    )
+
+
 @final
 @dataclass(frozen=True, slots=True)
 class AngryTests(Extension):
-    """Tests that make one assertion, as their last statement.
+    """Tests that end with their only assertion and share no constants.
 
     A test that ends with ``pytest.raises`` makes its assertion there.
     """
@@ -73,11 +111,8 @@ class AngryTests(Extension):
             for pattern in ("test_*.py", "*_test.py")
         ):
             return
-        for test in _tests(self.tree):
-            if not _asserted(test):
-                yield (
-                    test.lineno,
-                    test.col_offset,
-                    "TST100 test must end with its only assertion",
-                    AngryTests,
-                )
+        for line, column, text in (
+            *_assertions(self.tree),
+            *_constants(self.tree),
+        ):
+            yield line, column, text, AngryTests

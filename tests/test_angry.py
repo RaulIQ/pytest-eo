@@ -94,3 +94,41 @@ def test_ignores_a_helper_of_a_test_file() -> None:
     assert codes(code, "tests/test_source.py") == (), (
         "a helper of a test file is checked as a test"
     )
+
+
+def test_reports_a_constant_of_a_test_module() -> None:
+    assert codes("REPORT = 'a.py:1:1: E1 oops'\n", "tests/test_report.py") == (
+        "TST200",
+    ), "a constant of a test module doesnt fail"
+
+
+def test_reports_an_annotated_constant_of_a_test_module() -> None:
+    assert codes("LIMIT: int = 17\n", "tests/test_limit.py") == ("TST200",), (
+        "an annotated constant of a test module doesnt fail"
+    )
+
+
+def test_passes_the_plugins_of_a_test_module() -> None:
+    assert codes("pytest_plugins = ['pytester']\n", "test_kit.py") == (), (
+        "pytest_plugins of a test module doesnt pass"
+    )
+
+
+def test_passes_a_variable_inside_a_test() -> None:
+    code = "def test_word():\n    word = 'qx'\n    assert word.isalpha()\n"
+    assert codes(code, "tests/test_word.py") == (), (
+        "a variable inside a test doesnt pass"
+    )
+
+
+def test_ignores_a_constant_of_a_module_without_tests() -> None:
+    assert codes("TIMEOUT = 9.5\n", "tests/fakes.py") == (), (
+        "a constant of a module without tests is reported"
+    )
+
+
+def test_reports_the_line_of_the_constant() -> None:
+    code = "import os\n\nROOT = os.sep\n"
+    assert next(AngryTests(ast.parse(code), "test_root.py").run())[0] == 3, (
+        "the constant isnt reported on its own line"
+    )
