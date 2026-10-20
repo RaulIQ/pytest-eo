@@ -1,5 +1,7 @@
 # pytest-eo
 
+[![codecov](https://codecov.io/gh/RaulIQ/pytest-eo/graph/badge.svg)](https://codecov.io/gh/RaulIQ/pytest-eo)
+
 `pytest --eo` is a strict quality gate in the spirit of
 [Qulice](https://github.com/yegor256/qulice), built from ready-made tools.
 The plugin runs the tools, reads their reports, and shows each tool as a
@@ -115,9 +117,10 @@ python3 -m venv .venv
 make check
 ```
 
-`make check` runs the tests under coverage and fails below 100% of lines
-and branches, counting the pytest subprocesses of the end-to-end tests too;
-then it runs `pytest --eo` on the plugin itself, without the tests again.
+`make check` runs the tests and `pytest --eo` on the plugin itself; Rultor
+merges on it. `make coverage` measures lines and branches, counting the
+pytest subprocesses of the end-to-end tests too, and writes `coverage.xml`,
+which GitHub Actions sends to Codecov on every push and pull request.
 
 pyeo comes from the `integration` branch of the
 [RaulIQ/pyeo](https://github.com/RaulIQ/pyeo) fork, pinned by commit.

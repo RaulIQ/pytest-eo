@@ -1,12 +1,15 @@
 PYEO_REPO := https://github.com/RaulIQ/pyeo
 PYEO_BRANCH := integration
 
-.PHONY: check bump-pyeo
+.PHONY: check coverage bump-pyeo
 check:
+	.venv/bin/pytest --eo
+
+coverage:
 	.venv/bin/coverage run -m pytest
 	.venv/bin/coverage combine --quiet
 	.venv/bin/coverage report
-	.venv/bin/pytest --eo --deselect tests/
+	.venv/bin/coverage xml
 
 # Pin eo-styleguide to the latest commit of $(PYEO_BRANCH) in the fork
 # and reinstall it: pip keeps the old one when only the hash changes.
