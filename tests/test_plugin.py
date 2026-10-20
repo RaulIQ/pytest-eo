@@ -266,3 +266,20 @@ def test_passes_a_test_written_with_hamcrest(pytester: pytest.Pytester) -> None:
         equal_to({"passed": 6}),
         "a test written with hamcrest doesnt pass every tool and itself",
     )
+
+
+def test_refuses_to_suppress_the_ban_on_mocks_file_wide(
+    pytester: pytest.Pytester,
+) -> None:
+    result = project(
+        pytester,
+        "# ruff: file-ignore[banned-api] - the whole module is legacy\n"
+        '"""A package that sneaks a mock in for the whole file."""\n\n'
+        "from unittest import mock\n\n"
+        '__all__ = ["mock"]\n',
+    ).runpytest_subprocess("--eo")
+    assert_that(
+        result.stdout.str(),
+        contains_string("tidy/box.py:1:1: [suppressions:SUP003]"),
+        "a file-wide ruff suppression doesnt fail the gate",
+    )

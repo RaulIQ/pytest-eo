@@ -65,6 +65,7 @@ A rule may be suppressed on one line only, with a reason:
 |----------|----------------------------------------------------------|
 | `SUP001` | a suppression gives a reason after ` - `                 |
 | `SUP002` | a suppression never names `TID251` (`banned-api`), the ban on mocks |
+| `SUP003` | no `# ruff: noqa`, `file-ignore` or `disable`, which reach past one line |
 
 ruff already rejects a bare `# noqa` (`PGH004`), a bare `# type: ignore`
 (`PGH003`) and an unused `# noqa` for its own codes (`RUF100`).

@@ -156,3 +156,65 @@ def test_quotes_the_ruff_ignore_in_the_message(tmp_path: Path) -> None:
         contains_string("`# ruff: ignore[unused-import]`"),
         "the message doesnt quote the ruff ignore",
     )
+
+
+def test_reports_a_file_wide_ruff_noqa(tmp_path: Path) -> None:
+    files = source(tmp_path, "# ruff: noqa: TID251 - old code\nimport mock\n")
+    assert_that(
+        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
+        equal_to(("SUP003",)),
+        "a file-wide ruff noqa doesnt fail",
+    )
+
+
+def test_reports_a_blanket_ruff_noqa(tmp_path: Path) -> None:
+    files = source(tmp_path, "# ruff: noqa\nimport os\n")
+    assert_that(
+        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
+        equal_to(("SUP003",)),
+        "a blanket ruff noqa doesnt fail",
+    )
+
+
+def test_reports_a_ruff_file_ignore_even_with_a_reason(tmp_path: Path) -> None:
+    files = source(
+        tmp_path, "# ruff: file-ignore[unused-import] - plugins\nimport os\n"
+    )
+    assert_that(
+        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
+        equal_to(("SUP003",)),
+        "a ruff file-ignore with a reason doesnt fail",
+    )
+
+
+def test_reports_a_ruff_range_once(tmp_path: Path) -> None:
+    files = source(
+        tmp_path,
+        "# ruff: disable[unused-import] - plugins\n"
+        "import os\n"
+        "import re\n"
+        "# ruff: enable[unused-import]\n",
+    )
+    assert_that(
+        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
+        equal_to(("SUP003",)),
+        "a ruff range isnt reported exactly once",
+    )
+
+
+def test_reports_the_line_of_a_wide_suppression(tmp_path: Path) -> None:
+    files = source(tmp_path, '"""Box."""\n\n# ruff:file-ignore[F401]\n')
+    assert_that(
+        SuppressionCheck(files, ()).violations()[0].line,
+        equal_to(3),
+        "a wide suppression isnt reported on its own line",
+    )
+
+
+def test_names_the_form_of_a_wide_suppression(tmp_path: Path) -> None:
+    files = source(tmp_path, "# ruff: disable[banned-api]\nimport mock\n")
+    assert_that(
+        SuppressionCheck(files, ()).violations()[0].message,
+        contains_string("`# ruff: disable`"),
+        "the message doesnt name the form of the wide suppression",
+    )

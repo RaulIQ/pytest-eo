@@ -31,6 +31,7 @@ _FORMS = (
     ),
 )
 _REASON = re.compile(r"^\s+-\s+\S")
+_WIDE = re.compile(r"#\s*ruff:\s*(?P<kind>noqa|file-ignore|disable)\b")
 
 
 def _comments(file: Path) -> Iterator[tuple[int, int, str]]:
@@ -53,9 +54,10 @@ def _matches(text: str) -> Iterator[tuple[str, re.Match[str]]]:
 @final
 @dataclass(frozen=True, slots=True)
 class SuppressionCheck(Check):
-    """Suppressions that give no reason or silence a forbidden rule.
+    """Suppressions without a reason, of a forbidden rule, or wider than a line.
 
-    It reads both ``# noqa: CODE`` and ``# ruff: ignore[CODE-OR-NAME]``.
+    It reads ``# noqa: CODE`` and ``# ruff: ignore[CODE-OR-NAME]``, and
+    refuses the file-wide and range forms of ruff outright.
     """
 
     sources: Files
@@ -79,6 +81,16 @@ class SuppressionCheck(Check):
             for template, match in _matches(text):
                 place = (str(file), line, column + match.start() + 1)
                 yield from self._match(place, template, match)
+            for match in _WIDE.finditer(text):
+                yield Violation(
+                    self.name,
+                    "SUP003",
+                    str(file),
+                    line,
+                    column + match.start() + 1,
+                    f"`# ruff: {match['kind']}` suppresses beyond its own "
+                    "line: use `# ruff: ignore[name] - why` on that line",
+                )
 
     def _match(
         self,
