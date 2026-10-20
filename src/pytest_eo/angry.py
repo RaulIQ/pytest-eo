@@ -53,12 +53,35 @@ def _raising(statement: ast.stmt) -> bool:
     return False
 
 
+def _hamcrest(node: ast.AST) -> bool:
+    match node:
+        case ast.Call(
+            func=ast.Name(id="assert_that") | ast.Attribute(attr="assert_that"),
+        ):
+            found = True
+        case _:
+            found = False
+    return found
+
+
+def _assertion(statement: ast.stmt) -> bool:
+    match statement:
+        case ast.Assert():
+            found = True
+        case ast.Expr(value=value):
+            found = _hamcrest(value)
+        case _:
+            found = False
+    return found
+
+
 def _asserted(test: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
-    count = sum(isinstance(node, ast.Assert) for node in ast.walk(test))
-    last = test.body[-1]
-    return (count == 1 and isinstance(last, ast.Assert)) or (
-        count == 0 and _raising(last)
+    count = sum(
+        isinstance(node, ast.Assert) or _hamcrest(node)
+        for node in ast.walk(test)
     )
+    last = test.body[-1]
+    return (count == 1 and _assertion(last)) or (count == 0 and _raising(last))
 
 
 def _assertions(tree: ast.Module) -> Iterator[tuple[int, int, str]]:
@@ -110,6 +133,29 @@ def _text(message: ast.expr | None) -> str:
     return found
 
 
+def _said(tree: ast.Module) -> Iterator[tuple[ast.stmt | ast.expr, str]]:
+    for node in ast.walk(tree):
+        match node:
+            case ast.Assert(msg=message):
+                yield node, _text(message)
+            case ast.Call(args=[*_, last], keywords=keywords) if _hamcrest(
+                node
+            ):
+                yield (
+                    node,
+                    _text(
+                        next(
+                            (
+                                word.value
+                                for word in keywords
+                                if word.arg == "reason"
+                            ),
+                            last,
+                        ),
+                    ),
+                )
+
+
 def _messages(tree: ast.Module) -> Iterator[tuple[int, int, str]]:
     return (
         (
@@ -117,9 +163,8 @@ def _messages(tree: ast.Module) -> Iterator[tuple[int, int, str]]:
             node.col_offset,
             "TST300 assertion must explain its failure with a negation",
         )
-        for node in ast.walk(tree)
-        if isinstance(node, ast.Assert)
-        and not _NEGATION.search(_text(node.msg))
+        for node, text in _said(tree)
+        if not _NEGATION.search(text)
     )
 
 
@@ -128,8 +173,9 @@ def _messages(tree: ast.Module) -> Iterator[tuple[int, int, str]]:
 class AngryTests(Extension):
     """Tests that end with their only assertion and share no constants.
 
-    A test that ends with ``pytest.raises`` makes its assertion there.
-    Every assertion carries a negative message, such as "x doesnt y".
+    An assertion is a plain ``assert`` or a Hamcrest ``assert_that``; a test
+    that ends with ``pytest.raises`` makes its assertion there. Every
+    assertion carries a negative message, such as "x doesnt y".
     """
 
     tree: ast.Module

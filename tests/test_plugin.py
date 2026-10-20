@@ -1,4 +1,5 @@
 import pytest
+from hamcrest import assert_that, contains_string, equal_to
 
 
 def project(pytester: pytest.Pytester, source: str) -> pytest.Pytester:
@@ -12,8 +13,10 @@ def project(pytester: pytest.Pytester, source: str) -> pytest.Pytester:
 
 def test_does_nothing_without_the_option(pytester: pytest.Pytester) -> None:
     result = project(pytester, "import os\n").runpytest_subprocess()
-    assert result.ret == pytest.ExitCode.NO_TESTS_COLLECTED, (
-        "the plugin doesnt stay idle without --eo"
+    assert_that(
+        result.ret,
+        equal_to(pytest.ExitCode.NO_TESTS_COLLECTED),
+        "the plugin doesnt stay idle without --eo",
     )
 
 
@@ -27,8 +30,10 @@ def test_passes_every_tool_on_tidy_code(pytester: pytest.Pytester) -> None:
         '    """Return twice the number."""\n'
         "    return number * 2\n",
     ).runpytest_subprocess("--eo")
-    assert result.parseoutcomes() == {"passed": 5}, (
-        "tidy code doesnt pass every tool"
+    assert_that(
+        result.parseoutcomes(),
+        equal_to({"passed": 5}),
+        "tidy code doesnt pass every tool",
     )
 
 
@@ -46,8 +51,10 @@ def test_fails_every_tool_on_sloppy_code(pytester: pytest.Pytester) -> None:
         "def double(number):\n"
         "    return number*2  # noqa: E226\n",
     ).runpytest_subprocess("--eo")
-    assert result.parseoutcomes() == {"failed": 5}, (
-        "sloppy code doesnt fail every tool"
+    assert_that(
+        result.parseoutcomes(),
+        equal_to({"failed": 5}),
+        "sloppy code doesnt fail every tool",
     )
 
 
@@ -62,8 +69,10 @@ def test_refuses_to_suppress_the_ban_on_mocks(
         "\n"
         '__all__ = ["mock"]\n',
     ).runpytest_subprocess("--eo")
-    assert "[suppressions:SUP002]" in result.stdout.str(), (
-        "a suppressed ban on mocks doesnt fail the gate"
+    assert_that(
+        result.stdout.str(),
+        contains_string("[suppressions:SUP002]"),
+        "a suppressed ban on mocks doesnt fail the gate",
     )
 
 
@@ -78,8 +87,10 @@ def test_reports_static_methods(pytester: pytest.Pytester) -> None:
         "    def parse(text):\n"
         "        return int(text)\n",
     ).runpytest_subprocess("--eo")
-    assert "[flake8:PEO400]" in result.stdout.str(), (
-        "a static method doesnt fail the gate"
+    assert_that(
+        result.stdout.str(),
+        contains_string("[flake8:PEO400]"),
+        "a static method doesnt fail the gate",
     )
 
 
@@ -95,8 +106,10 @@ def test_reports_class_names_ending_in_er(pytester: pytest.Pytester) -> None:
         "class Parser:\n"
         '    """Turns text into numbers."""\n',
     ).runpytest_subprocess("--eo")
-    assert "tidy/box.py:7:1: [flake8:PEO300]" in result.stdout.str(), (
-        "a class name ending in -er doesnt fail the gate"
+    assert_that(
+        result.stdout.str(),
+        contains_string("tidy/box.py:7:1: [flake8:PEO300]"),
+        "a class name ending in -er doesnt fail the gate",
     )
 
 
@@ -115,8 +128,10 @@ def test_reports_public_methods_after_private_ones(
         "    def area(self):\n"
         "        return 5\n",
     ).runpytest_subprocess("--eo")
-    assert "tidy/box.py:8:5: [flake8:OVR100]" in result.stdout.str(), (
-        "a public method after a private one doesnt fail the gate"
+    assert_that(
+        result.stdout.str(),
+        contains_string("tidy/box.py:8:5: [flake8:OVR100]"),
+        "a public method after a private one doesnt fail the gate",
     )
 
 
@@ -137,8 +152,10 @@ def test_reports_blocks_nested_too_deep(pytester: pytest.Pytester) -> None:
         "                            return 6\n"
         "    return 0\n",
     ).runpytest_subprocess("--eo")
-    assert "tidy/box.py:6:5: [ruff:PLR1702]" in result.stdout.str(), (
-        "blocks nested too deep dont fail the gate"
+    assert_that(
+        result.stdout.str(),
+        contains_string("tidy/box.py:6:5: [ruff:PLR1702]"),
+        "blocks nested too deep dont fail the gate",
     )
 
 
@@ -152,8 +169,10 @@ def test_reports_functions_with_five_arguments(
         '    """Add the numbers up."""\n'
         "    return a + b + c + d + e\n",
     ).runpytest_subprocess("--eo")
-    assert "tidy/box.py:4:5: [ruff:PLR0913]" in result.stdout.str(), (
-        "five arguments dont fail the gate"
+    assert_that(
+        result.stdout.str(),
+        contains_string("tidy/box.py:4:5: [ruff:PLR0913]"),
+        "five arguments dont fail the gate",
     )
 
 
@@ -166,8 +185,10 @@ def test_refuses_to_suppress_the_ban_on_mocks_by_name(
         "from unittest import mock  # ruff: ignore[banned-api] - just once\n\n"
         '__all__ = ["mock"]\n',
     ).runpytest_subprocess("--eo")
-    assert "[suppressions:SUP002]" in result.stdout.str(), (
-        "a ruff ignore of the ban on mocks doesnt fail the gate"
+    assert_that(
+        result.stdout.str(),
+        contains_string("[suppressions:SUP002]"),
+        "a ruff ignore of the ban on mocks doesnt fail the gate",
     )
 
 
@@ -180,9 +201,11 @@ def test_reports_a_test_with_two_assertions(pytester: pytest.Pytester) -> None:
         "    assert len('lid') == 3\n"
         "    assert 'lid'.upper() == 'LID'\n",
     )
-    assert "tidy/test_box.py:4:1: [flake8:TST100]" in (
-        gate.runpytest_subprocess("--eo").stdout.str()
-    ), "a test with two assertions doesnt fail the gate"
+    assert_that(
+        gate.runpytest_subprocess("--eo").stdout.str(),
+        contains_string("tidy/test_box.py:4:1: [flake8:TST100]"),
+        "a test with two assertions doesnt fail the gate",
+    )
 
 
 def test_reports_a_constant_shared_by_tests(pytester: pytest.Pytester) -> None:
@@ -190,9 +213,11 @@ def test_reports_a_constant_shared_by_tests(pytester: pytest.Pytester) -> None:
     (gate.path / "src" / "tidy" / "test_box.py").write_text(
         '"""Tests of a box."""\n\nWIDTH = 31\n',
     )
-    assert "tidy/test_box.py:3:1: [flake8:TST200]" in (
-        gate.runpytest_subprocess("--eo").stdout.str()
-    ), "a constant shared by tests doesnt fail the gate"
+    assert_that(
+        gate.runpytest_subprocess("--eo").stdout.str(),
+        contains_string("tidy/test_box.py:3:1: [flake8:TST200]"),
+        "a constant shared by tests doesnt fail the gate",
+    )
 
 
 def test_reports_an_assertion_without_a_message(
@@ -205,6 +230,39 @@ def test_reports_an_assertion_without_a_message(
         '    """Open the lid."""\n'
         "    assert len('lid') == 3\n",
     )
-    assert "tidy/test_box.py:6:5: [flake8:TST300]" in (
-        gate.runpytest_subprocess("--eo").stdout.str()
-    ), "an assertion without a message doesnt fail the gate"
+    assert_that(
+        gate.runpytest_subprocess("--eo").stdout.str(),
+        contains_string("tidy/test_box.py:6:5: [flake8:TST300]"),
+        "an assertion without a message doesnt fail the gate",
+    )
+
+
+def test_reports_a_plain_assert_in_tests(pytester: pytest.Pytester) -> None:
+    pytester.makepyprojecttoml('[tool.eo]\npaths = ["tests"]\n')
+    (pytester.path / "tests").mkdir()
+    (pytester.path / "tests" / "__init__.py").write_text('"""Tests."""\n')
+    (pytester.path / "tests" / "test_lid.py").write_text(
+        "def test_lid() -> None:\n"
+        '    assert len("lid") == 3, "the lid isnt three letters long"\n',
+    )
+    assert_that(
+        pytester.runpytest_subprocess("--eo").stdout.str(),
+        contains_string("tests/test_lid.py:2:5: [ruff:S101]"),
+        "a plain assert in tests doesnt fail the gate",
+    )
+
+
+def test_passes_a_test_written_with_hamcrest(pytester: pytest.Pytester) -> None:
+    pytester.makepyprojecttoml('[tool.eo]\npaths = ["tests"]\n')
+    (pytester.path / "tests").mkdir()
+    (pytester.path / "tests" / "__init__.py").write_text('"""Tests."""\n')
+    (pytester.path / "tests" / "test_rope.py").write_text(
+        "from hamcrest import assert_that, has_length\n\n\n"
+        "def test_rope() -> None:\n"
+        '    assert_that("rope", has_length(4), "the rope isnt four long")\n',
+    )
+    assert_that(
+        pytester.runpytest_subprocess("--eo").parseoutcomes(),
+        equal_to({"passed": 6}),
+        "a test written with hamcrest doesnt pass every tool and itself",
+    )

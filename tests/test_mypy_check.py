@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from hamcrest import assert_that, empty, equal_to, has_length
 
 from pytest_eo.check import MypyCheck
 from pytest_eo.command import Output, ToolFailedError
@@ -9,8 +10,10 @@ from tests.fakes import FakeCommand
 
 def test_reports_nothing_when_types_are_clean() -> None:
     check = MypyCheck(FakeCommand(Output("", "", 0)))
-    assert check.violations() == (), (
-        "clean mypy output isnt read as no violations"
+    assert_that(
+        check.violations(),
+        empty(),
+        "clean mypy output isnt read as no violations",
     )
 
 
@@ -26,8 +29,10 @@ def test_reports_the_error_code_mypy_found() -> None:
         },
     )
     check = MypyCheck(FakeCommand(Output(error, "", 1)))
-    assert check.violations()[0].code == "no-untyped-def", (
-        "the error code of mypy isnt reported"
+    assert_that(
+        check.violations()[0].code,
+        equal_to("no-untyped-def"),
+        "the error code of mypy isnt reported",
     )
 
 
@@ -53,7 +58,9 @@ def test_skips_notes_that_only_explain_errors() -> None:
         },
     )
     check = MypyCheck(FakeCommand(Output(f"{error}\n{note}\n", "", 1)))
-    assert len(check.violations()) == 1, "a note of mypy isnt skipped"
+    assert_that(
+        check.violations(), has_length(1), "a note of mypy isnt skipped"
+    )
 
 
 def test_fails_loudly_when_mypy_cannot_run() -> None:

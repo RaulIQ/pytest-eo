@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from hamcrest import assert_that, equal_to
+
 from pytest_eo.command import PythonModule
 
 
@@ -16,6 +18,8 @@ def test_strict_profile_source_gives_ruff_no_warning() -> None:
         ),
         package,
     ).run()
-    assert "warning" not in output.stderr, (
-        "ruff dont stay silent about strict.py"
+    assert_that(
+        output.stderr.count("warning"),
+        equal_to(0),
+        "ruff dont stay silent about strict.py",
     )

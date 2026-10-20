@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from hamcrest import assert_that, contains_string
 
 
 def test_keeps_the_failure_section_of_a_test(
@@ -22,6 +23,8 @@ def test_keeps_the_failure_section_of_a_test(
         stdin=b'{"hook_event_name": "Stop"}',
         timeout=180,
     )
-    assert "_ test_wobbles _" in result.stderr.str(), (
-        "the hook doesnt keep the failure section of a test"
+    assert_that(
+        result.stderr.str(),
+        contains_string("_ test_wobbles _"),
+        "the hook doesnt keep the failure section of a test",
     )

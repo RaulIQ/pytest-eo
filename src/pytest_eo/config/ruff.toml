@@ -19,7 +19,6 @@ external = ["FIN", "PEO", "OVR", "TST"]
 
 [lint.per-file-ignores]
 "tests/**" = [
-    "assert",                 # assert is how pytest tests are written
     "magic-value-comparison", # literals in expectations are fine
     "D",                      # test names are the documentation
 ]

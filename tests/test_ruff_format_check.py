@@ -1,3 +1,5 @@
+from hamcrest import assert_that, empty, equal_to, has_length
+
 from pytest_eo.check import RuffFormatCheck
 from pytest_eo.command import Output
 from tests.fakes import FakeCommand
@@ -5,8 +7,10 @@ from tests.fakes import FakeCommand
 
 def test_reports_nothing_when_files_are_formatted() -> None:
     check = RuffFormatCheck(FakeCommand(Output("", "", 0)))
-    assert check.violations() == (), (
-        "formatted files arent read as no violations"
+    assert_that(
+        check.violations(),
+        empty(),
+        "formatted files arent read as no violations",
     )
 
 
@@ -20,8 +24,10 @@ def test_reports_each_file_the_formatter_would_change() -> None:
             ),
         ),
     )
-    assert check.violations()[0].path == "src/app.py", (
-        "a file the formatter would change isnt reported"
+    assert_that(
+        check.violations()[0].path,
+        equal_to("src/app.py"),
+        "a file the formatter would change isnt reported",
     )
 
 
@@ -36,6 +42,8 @@ def test_ignores_the_summary_line() -> None:
             ),
         ),
     )
-    assert len(check.violations()) == 1, (
-        "the summary line of ruff format isnt ignored"
+    assert_that(
+        check.violations(),
+        has_length(1),
+        "the summary line of ruff format isnt ignored",
     )

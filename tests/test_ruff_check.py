@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from hamcrest import assert_that, empty, equal_to
 
 from pytest_eo.check import RuffCheck
 from pytest_eo.command import Output, ToolFailedError
@@ -9,8 +10,10 @@ from tests.fakes import FakeCommand
 
 def test_reports_nothing_when_ruff_is_clean() -> None:
     check = RuffCheck(FakeCommand(Output("[]", "", 0)))
-    assert check.violations() == (), (
-        "clean ruff output isnt read as no violations"
+    assert_that(
+        check.violations(),
+        empty(),
+        "clean ruff output isnt read as no violations",
     )
 
 
@@ -26,8 +29,10 @@ def test_reports_the_rule_code_ruff_found() -> None:
         ],
     )
     check = RuffCheck(FakeCommand(Output(report, "", 1)))
-    assert check.violations()[0].code == "F401", (
-        "the rule code of ruff isnt reported"
+    assert_that(
+        check.violations()[0].code,
+        equal_to("F401"),
+        "the rule code of ruff isnt reported",
     )
 
 
@@ -43,8 +48,10 @@ def test_reports_the_line_ruff_found() -> None:
         ],
     )
     check = RuffCheck(FakeCommand(Output(report, "", 1)))
-    assert check.violations()[0].line == 23, (
-        "the line of a ruff finding isnt reported"
+    assert_that(
+        check.violations()[0].line,
+        equal_to(23),
+        "the line of a ruff finding isnt reported",
     )
 
 

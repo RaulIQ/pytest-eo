@@ -40,6 +40,22 @@ of "Angry Tests" for the files pytest collects (`test_*.py`, `*_test.py`):
 | `TST200` | a test module keeps no constants, except `pytest_plugins` |
 | `TST300` | an assertion carries a negative message, such as `"x doesnt y"` |
 
+As in Qulice, which rejects plain JUnit assertions, a test asserts through a
+Hamcrest matcher, never through a plain `assert`; ruff's `S101` stays on in
+tests too. PyHamcrest comes with the package:
+
+```python
+from hamcrest import assert_that, equal_to
+
+
+def test_reads_paths(tmp_path: Path) -> None:
+    assert_that(
+        Project(tmp_path).paths(),
+        equal_to((".",)),
+        "Project doesnt read paths",
+    )
+```
+
 A rule may be suppressed on one line only, with a reason:
 `# noqa: PEO200 - pytest.Item is mutable by design`, or
 `# ruff: ignore[unused-import] - re-exported for plugins`.
