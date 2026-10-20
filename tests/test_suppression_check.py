@@ -14,29 +14,39 @@ def test_passes_a_suppression_with_a_reason(tmp_path: Path) -> None:
     files = source(
         tmp_path, "import os  # noqa: F401 - re-exported for plugins\n"
     )
-    assert SuppressionCheck(files, ("TID251",)).violations() == ()
+    assert SuppressionCheck(files, ("TID251",)).violations() == (), (
+        "a suppression with a reason doesnt pass"
+    )
 
 
 def test_reports_a_suppression_without_a_reason(tmp_path: Path) -> None:
     files = source(tmp_path, "import os  # noqa: F401\n")
-    assert SuppressionCheck(files, ()).violations()[0].code == "SUP001"
+    assert SuppressionCheck(files, ()).violations()[0].code == "SUP001", (
+        "a suppression without a reason doesnt fail"
+    )
 
 
 def test_reports_the_line_of_the_suppression(tmp_path: Path) -> None:
     files = source(tmp_path, "x = 1\nimport os  # noqa: F401\n")
-    assert SuppressionCheck(files, ()).violations()[0].line == 2
+    assert SuppressionCheck(files, ()).violations()[0].line == 2, (
+        "the suppression isnt reported on its own line"
+    )
 
 
 def test_reports_a_code_that_cannot_be_suppressed(tmp_path: Path) -> None:
     files = source(
         tmp_path, "from unittest import mock  # noqa: TID251 - just once\n"
     )
-    assert SuppressionCheck(files, ("TID251",)).violations()[0].code == "SUP002"
+    assert (
+        SuppressionCheck(files, ("TID251",)).violations()[0].code == "SUP002"
+    ), "a suppressed forbidden code doesnt fail"
 
 
 def test_reports_a_forbidden_code_among_others(tmp_path: Path) -> None:
     files = source(tmp_path, "import mock  # noqa: F401, TID251 - legacy\n")
-    assert SuppressionCheck(files, ("TID",)).violations()[0].code == "SUP002"
+    assert SuppressionCheck(files, ("TID",)).violations()[0].code == "SUP002", (
+        "a forbidden code among others doesnt fail"
+    )
 
 
 def test_accepts_a_reason_after_a_type_ignore(tmp_path: Path) -> None:
@@ -44,55 +54,73 @@ def test_accepts_a_reason_after_a_type_ignore(tmp_path: Path) -> None:
         "x: int = y  # type: ignore[assignment]  # noqa: F821 - y is injected\n"
     )
     files = source(tmp_path, text)
-    assert SuppressionCheck(files, ()).violations() == ()
+    assert SuppressionCheck(files, ()).violations() == (), (
+        "a reason after a type ignore isnt accepted"
+    )
 
 
 def test_ignores_noqa_inside_a_string(tmp_path: Path) -> None:
     files = source(tmp_path, 'text = "import os  # noqa: F401"\n')
-    assert SuppressionCheck(files, ()).violations() == ()
+    assert SuppressionCheck(files, ()).violations() == (), (
+        "a noqa inside a string isnt ignored"
+    )
 
 
 def test_ignores_comments_without_noqa(tmp_path: Path) -> None:
     files = source(tmp_path, "x = 1  # the answer\n")
-    assert SuppressionCheck(files, ()).violations() == ()
+    assert SuppressionCheck(files, ()).violations() == (), (
+        "a comment without noqa isnt ignored"
+    )
 
 
 def test_reports_a_ruff_ignore_without_a_reason(tmp_path: Path) -> None:
     files = source(tmp_path, "import os  # ruff: ignore[unused-import]\n")
-    assert SuppressionCheck(files, ()).violations()[0].code == "SUP001"
+    assert SuppressionCheck(files, ()).violations()[0].code == "SUP001", (
+        "a ruff ignore without a reason doesnt fail"
+    )
 
 
 def test_passes_a_ruff_ignore_with_a_reason(tmp_path: Path) -> None:
     files = source(
         tmp_path, "import os  # ruff: ignore[unused-import] - for plugins\n"
     )
-    assert SuppressionCheck(files, ("banned-api",)).violations() == ()
+    assert SuppressionCheck(files, ("banned-api",)).violations() == (), (
+        "a ruff ignore with a reason doesnt pass"
+    )
 
 
 def test_reports_a_forbidden_name_in_a_ruff_ignore(tmp_path: Path) -> None:
     files = source(tmp_path, "import mock  # ruff: ignore[banned-api] - once\n")
-    assert SuppressionCheck(files, ("banned",)).violations()[0].code == "SUP002"
+    assert SuppressionCheck(files, ("banned",)).violations()[0].code == (
+        "SUP002"
+    ), "a forbidden name in a ruff ignore doesnt fail"
 
 
 def test_reports_a_forbidden_code_in_a_ruff_ignore(tmp_path: Path) -> None:
     files = source(tmp_path, "import mock  # ruff: ignore[F401, TID251] - x\n")
-    assert SuppressionCheck(files, ("TID",)).violations()[0].code == "SUP002"
+    assert SuppressionCheck(files, ("TID",)).violations()[0].code == "SUP002", (
+        "a forbidden code in a ruff ignore doesnt fail"
+    )
 
 
 def test_reports_a_ruff_ignore_on_its_own_line(tmp_path: Path) -> None:
     files = source(
         tmp_path, "# ruff: ignore[banned-api]\nfrom unittest import mock\n"
     )
-    assert SuppressionCheck(files, ()).violations()[0].line == 1
+    assert SuppressionCheck(files, ()).violations()[0].line == 1, (
+        "a ruff ignore on its own line isnt reported"
+    )
 
 
 def test_reports_a_ruff_ignore_without_spaces(tmp_path: Path) -> None:
     files = source(tmp_path, "import os  #ruff:ignore[unused-import]\n")
-    assert SuppressionCheck(files, ()).violations()[0].code == "SUP001"
+    assert SuppressionCheck(files, ()).violations()[0].code == "SUP001", (
+        "a ruff ignore without spaces isnt reported"
+    )
 
 
 def test_quotes_the_ruff_ignore_in_the_message(tmp_path: Path) -> None:
     files = source(tmp_path, "import os  # ruff: ignore[unused-import]\n")
     assert "`# ruff: ignore[unused-import]`" in (
         SuppressionCheck(files, ()).violations()[0].message
-    )
+    ), "the message doesnt quote the ruff ignore"

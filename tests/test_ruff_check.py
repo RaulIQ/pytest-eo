@@ -9,7 +9,9 @@ from tests.fakes import FakeCommand
 
 def test_reports_nothing_when_ruff_is_clean() -> None:
     check = RuffCheck(FakeCommand(Output("[]", "", 0)))
-    assert check.violations() == ()
+    assert check.violations() == (), (
+        "clean ruff output isnt read as no violations"
+    )
 
 
 def test_reports_the_rule_code_ruff_found() -> None:
@@ -24,7 +26,9 @@ def test_reports_the_rule_code_ruff_found() -> None:
         ],
     )
     check = RuffCheck(FakeCommand(Output(report, "", 1)))
-    assert check.violations()[0].code == "F401"
+    assert check.violations()[0].code == "F401", (
+        "the rule code of ruff isnt reported"
+    )
 
 
 def test_reports_the_line_ruff_found() -> None:
@@ -39,7 +43,9 @@ def test_reports_the_line_ruff_found() -> None:
         ],
     )
     check = RuffCheck(FakeCommand(Output(report, "", 1)))
-    assert check.violations()[0].line == 23
+    assert check.violations()[0].line == 23, (
+        "the line of a ruff finding isnt reported"
+    )
 
 
 def test_fails_loudly_when_ruff_crashes() -> None:

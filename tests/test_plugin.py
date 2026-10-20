@@ -12,7 +12,9 @@ def project(pytester: pytest.Pytester, source: str) -> pytest.Pytester:
 
 def test_does_nothing_without_the_option(pytester: pytest.Pytester) -> None:
     result = project(pytester, "import os\n").runpytest_subprocess()
-    assert result.ret == pytest.ExitCode.NO_TESTS_COLLECTED
+    assert result.ret == pytest.ExitCode.NO_TESTS_COLLECTED, (
+        "the plugin doesnt stay idle without --eo"
+    )
 
 
 def test_passes_every_tool_on_tidy_code(pytester: pytest.Pytester) -> None:
@@ -25,7 +27,9 @@ def test_passes_every_tool_on_tidy_code(pytester: pytest.Pytester) -> None:
         '    """Return twice the number."""\n'
         "    return number * 2\n",
     ).runpytest_subprocess("--eo")
-    assert result.parseoutcomes() == {"passed": 5}
+    assert result.parseoutcomes() == {"passed": 5}, (
+        "tidy code doesnt pass every tool"
+    )
 
 
 def test_fails_every_tool_on_sloppy_code(pytester: pytest.Pytester) -> None:
@@ -42,7 +46,9 @@ def test_fails_every_tool_on_sloppy_code(pytester: pytest.Pytester) -> None:
         "def double(number):\n"
         "    return number*2  # noqa: E226\n",
     ).runpytest_subprocess("--eo")
-    assert result.parseoutcomes() == {"failed": 5}
+    assert result.parseoutcomes() == {"failed": 5}, (
+        "sloppy code doesnt fail every tool"
+    )
 
 
 def test_refuses_to_suppress_the_ban_on_mocks(
@@ -56,7 +62,9 @@ def test_refuses_to_suppress_the_ban_on_mocks(
         "\n"
         '__all__ = ["mock"]\n',
     ).runpytest_subprocess("--eo")
-    assert "[suppressions:SUP002]" in result.stdout.str()
+    assert "[suppressions:SUP002]" in result.stdout.str(), (
+        "a suppressed ban on mocks doesnt fail the gate"
+    )
 
 
 def test_reports_static_methods(pytester: pytest.Pytester) -> None:
@@ -70,7 +78,9 @@ def test_reports_static_methods(pytester: pytest.Pytester) -> None:
         "    def parse(text):\n"
         "        return int(text)\n",
     ).runpytest_subprocess("--eo")
-    assert "[flake8:PEO400]" in result.stdout.str()
+    assert "[flake8:PEO400]" in result.stdout.str(), (
+        "a static method doesnt fail the gate"
+    )
 
 
 def test_reports_class_names_ending_in_er(pytester: pytest.Pytester) -> None:
@@ -85,7 +95,9 @@ def test_reports_class_names_ending_in_er(pytester: pytest.Pytester) -> None:
         "class Parser:\n"
         '    """Turns text into numbers."""\n',
     ).runpytest_subprocess("--eo")
-    assert "tidy/box.py:7:1: [flake8:PEO300]" in result.stdout.str()
+    assert "tidy/box.py:7:1: [flake8:PEO300]" in result.stdout.str(), (
+        "a class name ending in -er doesnt fail the gate"
+    )
 
 
 def test_reports_public_methods_after_private_ones(
@@ -103,7 +115,9 @@ def test_reports_public_methods_after_private_ones(
         "    def area(self):\n"
         "        return 5\n",
     ).runpytest_subprocess("--eo")
-    assert "tidy/box.py:8:5: [flake8:OVR100]" in result.stdout.str()
+    assert "tidy/box.py:8:5: [flake8:OVR100]" in result.stdout.str(), (
+        "a public method after a private one doesnt fail the gate"
+    )
 
 
 def test_reports_blocks_nested_too_deep(pytester: pytest.Pytester) -> None:
@@ -123,7 +137,9 @@ def test_reports_blocks_nested_too_deep(pytester: pytest.Pytester) -> None:
         "                            return 6\n"
         "    return 0\n",
     ).runpytest_subprocess("--eo")
-    assert "tidy/box.py:6:5: [ruff:PLR1702]" in result.stdout.str()
+    assert "tidy/box.py:6:5: [ruff:PLR1702]" in result.stdout.str(), (
+        "blocks nested too deep dont fail the gate"
+    )
 
 
 def test_reports_functions_with_five_arguments(
@@ -177,3 +193,18 @@ def test_reports_a_constant_shared_by_tests(pytester: pytest.Pytester) -> None:
     assert "tidy/test_box.py:3:1: [flake8:TST200]" in (
         gate.runpytest_subprocess("--eo").stdout.str()
     ), "a constant shared by tests doesnt fail the gate"
+
+
+def test_reports_an_assertion_without_a_message(
+    pytester: pytest.Pytester,
+) -> None:
+    gate = project(pytester, '"""A box under the gate."""\n')
+    (gate.path / "src" / "tidy" / "test_box.py").write_text(
+        '"""Tests of a box."""\n\n\n'
+        "def test_lid() -> None:\n"
+        '    """Open the lid."""\n'
+        "    assert len('lid') == 3\n",
+    )
+    assert "tidy/test_box.py:6:5: [flake8:TST300]" in (
+        gate.runpytest_subprocess("--eo").stdout.str()
+    ), "an assertion without a message doesnt fail the gate"

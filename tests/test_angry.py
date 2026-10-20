@@ -11,21 +11,23 @@ def codes(code: str, filename: str) -> tuple[str, ...]:
 
 
 def test_passes_a_test_that_ends_with_its_only_assertion() -> None:
-    code = "def test_sum():\n    total = 2 + 3\n    assert total == 5\n"
+    code = (
+        "def test_sum():\n    total = 2 + 3\n    assert total == 5, 'no five'\n"
+    )
     assert codes(code, "tests/test_sum.py") == (), (
         "a test with one final assertion doesnt pass"
     )
 
 
 def test_reports_a_test_with_two_assertions() -> None:
-    code = "def test_pair():\n    assert 1 == 1\n    assert 2 == 2\n"
+    code = "def test_pair():\n    assert 1, 'no one'\n    assert 2, 'no two'\n"
     assert codes(code, "tests/test_pair.py") == ("TST100",), (
         "a test with two assertions doesnt fail"
     )
 
 
 def test_reports_a_test_whose_assertion_is_not_last() -> None:
-    code = "def test_order():\n    assert len('ab') == 2\n    print('ab')\n"
+    code = "def test_order():\n    assert 'ab', 'no ab'\n    print('ab')\n"
     assert codes(code, "tests/test_order.py") == ("TST100",), (
         "a test with its assertion before the end doesnt fail"
     )
@@ -52,7 +54,7 @@ def test_passes_a_test_that_ends_with_pytest_raises() -> None:
 def test_reports_an_assertion_before_pytest_raises() -> None:
     code = (
         "def test_mixed():\n"
-        "    assert 4 > 3\n"
+        "    assert 4 > 3, 'four isnt bigger'\n"
         "    with pytest.raises(KeyError):\n"
         "        print({}['q'])\n"
     )
@@ -92,7 +94,7 @@ def test_ignores_a_file_that_holds_no_tests() -> None:
 def test_ignores_a_helper_of_a_test_file() -> None:
     code = "def source(text):\n    print(text)\n    return text\n"
     assert codes(code, "tests/test_source.py") == (), (
-        "a helper of a test file is checked as a test"
+        "a helper of a test file isnt left alone"
     )
 
 
@@ -115,7 +117,7 @@ def test_passes_the_plugins_of_a_test_module() -> None:
 
 
 def test_passes_a_variable_inside_a_test() -> None:
-    code = "def test_word():\n    word = 'qx'\n    assert word.isalpha()\n"
+    code = "def test_word():\n    word = 'qx'\n    assert word, 'no word'\n"
     assert codes(code, "tests/test_word.py") == (), (
         "a variable inside a test doesnt pass"
     )
@@ -123,7 +125,7 @@ def test_passes_a_variable_inside_a_test() -> None:
 
 def test_ignores_a_constant_of_a_module_without_tests() -> None:
     assert codes("TIMEOUT = 9.5\n", "tests/fakes.py") == (), (
-        "a constant of a module without tests is reported"
+        "a constant of a module without tests isnt ignored"
     )
 
 
@@ -131,4 +133,46 @@ def test_reports_the_line_of_the_constant() -> None:
     code = "import os\n\nROOT = os.sep\n"
     assert next(AngryTests(ast.parse(code), "test_root.py").run())[0] == 3, (
         "the constant isnt reported on its own line"
+    )
+
+
+def test_reports_an_assertion_without_a_message() -> None:
+    code = "def test_bare():\n    assert 'ab'.isalpha()\n"
+    assert codes(code, "tests/test_bare.py") == ("TST300",), (
+        "an assertion without a message doesnt fail"
+    )
+
+
+def test_reports_a_message_that_isnt_negative() -> None:
+    code = "def test_glad():\n    assert 6 > 5, 'six beats five'\n"
+    assert codes(code, "tests/test_glad.py") == ("TST300",), (
+        "a message without a negation doesnt fail"
+    )
+
+
+def test_passes_a_message_spelled_without_an_apostrophe() -> None:
+    code = "def test_lamp():\n    assert 'on', 'the lamp doesnt glow'\n"
+    assert codes(code, "tests/test_lamp.py") == (), (
+        "a negative message without an apostrophe doesnt pass"
+    )
+
+
+def test_passes_a_negative_formatted_message() -> None:
+    code = "def test_cup(cup):\n    assert cup, f'{cup} cannot hold tea'\n"
+    assert codes(code, "tests/test_cup.py") == (), (
+        "a negative formatted message doesnt pass"
+    )
+
+
+def test_reports_a_message_held_in_a_variable() -> None:
+    code = "def test_box(text):\n    assert len(text) == 2, text\n"
+    assert codes(code, "tests/test_box.py") == ("TST300",), (
+        "a message that cannot be read doesnt fail"
+    )
+
+
+def test_reports_the_line_of_the_assertion() -> None:
+    code = "def test_gap():\n    gap = 3\n    assert gap == 3\n"
+    assert next(AngryTests(ast.parse(code), "test_gap.py").run())[0] == 3, (
+        "the assertion isnt reported on its own line"
     )

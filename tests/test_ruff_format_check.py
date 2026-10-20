@@ -5,7 +5,9 @@ from tests.fakes import FakeCommand
 
 def test_reports_nothing_when_files_are_formatted() -> None:
     check = RuffFormatCheck(FakeCommand(Output("", "", 0)))
-    assert check.violations() == ()
+    assert check.violations() == (), (
+        "formatted files arent read as no violations"
+    )
 
 
 def test_reports_each_file_the_formatter_would_change() -> None:
@@ -18,7 +20,9 @@ def test_reports_each_file_the_formatter_would_change() -> None:
             ),
         ),
     )
-    assert check.violations()[0].path == "src/app.py"
+    assert check.violations()[0].path == "src/app.py", (
+        "a file the formatter would change isnt reported"
+    )
 
 
 def test_ignores_the_summary_line() -> None:
@@ -32,4 +36,6 @@ def test_ignores_the_summary_line() -> None:
             ),
         ),
     )
-    assert len(check.violations()) == 1
+    assert len(check.violations()) == 1, (
+        "the summary line of ruff format isnt ignored"
+    )

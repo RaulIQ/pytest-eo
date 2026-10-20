@@ -38,6 +38,7 @@ of "Angry Tests" for the files pytest collects (`test_*.py`, `*_test.py`):
 |----------|----------------------------------------------------------|
 | `TST100` | a test ends with its only assertion, or with `pytest.raises` |
 | `TST200` | a test module keeps no constants, except `pytest_plugins` |
+| `TST300` | an assertion carries a negative message, such as `"x doesnt y"` |
 
 A rule may be suppressed on one line only, with a reason:
 `# noqa: PEO200 - pytest.Item is mutable by design`, or

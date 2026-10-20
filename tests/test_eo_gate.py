@@ -22,4 +22,6 @@ def test_keeps_the_failure_section_of_a_test(
         stdin=b'{"hook_event_name": "Stop"}',
         timeout=180,
     )
-    assert "_ test_wobbles _" in result.stderr.str()
+    assert "_ test_wobbles _" in result.stderr.str(), (
+        "the hook doesnt keep the failure section of a test"
+    )

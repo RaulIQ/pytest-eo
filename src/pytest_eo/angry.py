@@ -1,12 +1,19 @@
 """Rules of Angry Tests, which flake8 runs over the test files of pytest."""
 
 import ast
+import re
 from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import PurePath
 from typing import Protocol, final
 
 from typing_extensions import override
+
+_NEGATION = re.compile(
+    r"\b(?:not|never|no|nothing|cannot|dont|doesnt|didnt|isnt|arent|wasnt"
+    r"|werent|wont|cant)\b",
+    re.IGNORECASE,
+)
 
 
 class Extension(Protocol):
@@ -92,12 +99,37 @@ def _constants(tree: ast.Module) -> Iterator[tuple[int, int, str]]:
     )
 
 
+def _text(message: ast.expr | None) -> str:
+    match message:
+        case ast.Constant(value=str() as text):
+            found = text
+        case ast.JoinedStr(values=parts):
+            found = " ".join(_text(part) for part in parts)
+        case _:
+            found = ""
+    return found
+
+
+def _messages(tree: ast.Module) -> Iterator[tuple[int, int, str]]:
+    return (
+        (
+            node.lineno,
+            node.col_offset,
+            "TST300 assertion must explain its failure with a negation",
+        )
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Assert)
+        and not _NEGATION.search(_text(node.msg))
+    )
+
+
 @final
 @dataclass(frozen=True, slots=True)
 class AngryTests(Extension):
     """Tests that end with their only assertion and share no constants.
 
     A test that ends with ``pytest.raises`` makes its assertion there.
+    Every assertion carries a negative message, such as "x doesnt y".
     """
 
     tree: ast.Module
@@ -114,5 +146,6 @@ class AngryTests(Extension):
         for line, column, text in (
             *_assertions(self.tree),
             *_constants(self.tree),
+            *_messages(self.tree),
         ):
             yield line, column, text, AngryTests
