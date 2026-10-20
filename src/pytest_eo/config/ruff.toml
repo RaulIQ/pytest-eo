@@ -14,8 +14,8 @@ ignore = [
     "DOC",                                       # docstrings explain purpose, not returns and raises
 ]
 
-# Codes of pyeo, checked by flake8: lets ruff accept them in "# noqa" comments.
-external = ["FIN", "PEO", "OVR"]
+# Codes checked by flake8: lets ruff accept them in "# noqa" comments.
+external = ["FIN", "PEO", "OVR", "TST"]
 
 [lint.per-file-ignores]
 "tests/**" = [

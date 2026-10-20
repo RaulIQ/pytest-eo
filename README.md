@@ -3,7 +3,7 @@
 `pytest --eo` is a strict quality gate in the spirit of
 [Qulice](https://github.com/yegor256/qulice), built from ready-made tools.
 The plugin runs the tools, reads their reports, and shows each tool as a
-separate test; its only rules of its own are about suppressions.
+separate test; its own rules cover only tests and suppressions.
 
 | Test              | Tool                                           |
 |-------------------|------------------------------------------------|
@@ -30,6 +30,13 @@ The pyeo rules enabled so far:
 mypy runs with `explicit-override` on top of `--strict`, so an `@override`
 must override a real method and every overriding method must say so.
 Python 3.11 has no `typing.override`; import it from `typing_extensions`.
+
+The package also brings a flake8 plugin of its own, with rules in the spirit
+of "Angry Tests" for the files pytest collects (`test_*.py`, `*_test.py`):
+
+| Code     | Rule                                                     |
+|----------|----------------------------------------------------------|
+| `TST100` | a test ends with its only assertion, or with `pytest.raises` |
 
 A rule may be suppressed on one line only, with a reason:
 `# noqa: PEO200 - pytest.Item is mutable by design`, or

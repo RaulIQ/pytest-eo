@@ -156,3 +156,17 @@ def test_refuses_to_suppress_the_ban_on_mocks_by_name(
     assert "[suppressions:SUP002]" in result.stdout.str(), (
         "a ruff ignore of the ban on mocks doesnt fail the gate"
     )
+
+
+def test_reports_a_test_with_two_assertions(pytester: pytest.Pytester) -> None:
+    gate = project(pytester, TIDY)
+    (gate.path / "src" / "tidy" / "test_box.py").write_text(
+        '"""Tests of a box."""\n\n\n'
+        "def test_lid() -> None:\n"
+        '    """Open the lid twice."""\n'
+        "    assert len('lid') == 3\n"
+        "    assert 'lid'.upper() == 'LID'\n",
+    )
+    assert "tidy/test_box.py:4:1: [flake8:TST100]" in (
+        gate.runpytest_subprocess("--eo").stdout.str()
+    ), "a test with two assertions doesnt fail the gate"

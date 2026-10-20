@@ -21,6 +21,9 @@ dependencies = [
 [project.entry-points.pytest11]
 eo = "pytest_eo.plugin"
 
+[project.entry-points."flake8.extension"]
+TST = "pytest_eo.angry:AngryTests"
+
 [tool.hatch.metadata]
 allow-direct-references = true
 
