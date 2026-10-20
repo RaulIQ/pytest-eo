@@ -111,9 +111,13 @@ To get the same in another project:
 
 ```sh
 python3 -m venv .venv
-.venv/bin/pip install -e .
-make check    # pytest --eo on the plugin itself
+.venv/bin/pip install -e '.[dev]'
+make check
 ```
+
+`make check` runs the tests under coverage and fails below 100% of lines
+and branches, counting the pytest subprocesses of the end-to-end tests too;
+then it runs `pytest --eo` on the plugin itself, without the tests again.
 
 pyeo comes from the `integration` branch of the
 [RaulIQ/pyeo](https://github.com/RaulIQ/pyeo) fork, pinned by commit.

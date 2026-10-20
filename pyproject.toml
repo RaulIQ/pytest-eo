@@ -19,6 +19,9 @@ dependencies = [
     "PyHamcrest>=2.1",
 ]
 
+[project.optional-dependencies]
+dev = ["coverage>=7.10"]
+
 [project.entry-points.pytest11]
 eo = "pytest_eo.plugin"
 
@@ -37,3 +40,14 @@ paths = ["src", "tests"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["pytest_eo"]
+patch = ["subprocess"]
+parallel = true
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+skip_covered = true
