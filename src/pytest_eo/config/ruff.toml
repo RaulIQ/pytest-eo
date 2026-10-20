@@ -12,7 +12,6 @@ ignore = [
     "single-line-implicit-string-concatenation", # conflicts with the formatter
     "missing-copyright-notice",                  # needs an author and a license: enable once the project picks them
     "DOC",                                       # docstrings explain purpose, not returns and raises
-    "noqa-comments",                             # eo::suppressions reads only "# noqa" for now, see #27
 ]
 
 # Codes of pyeo, checked by flake8: lets ruff accept them in "# noqa" comments.

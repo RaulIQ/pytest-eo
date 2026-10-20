@@ -18,8 +18,8 @@ from pytest_eo.command import PythonModule
 from pytest_eo.project import Layout, ProjectFiles
 from pytest_eo.suppression import SuppressionCheck
 
-# Codes that a suppression may never name: the ban on mocks.
-UNSUPPRESSIBLE = ("TID251",)
+# The rule a suppression may never name, by code or by name: the ban on mocks.
+UNSUPPRESSIBLE = ("TID251", "banned-api")
 
 
 def _bundled(name: str) -> str:

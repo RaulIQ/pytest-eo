@@ -1,6 +1,6 @@
 """Running an external tool: the only place that touches subprocesses."""
 
-import subprocess  # noqa: S404 - the only module that runs external tools
+import subprocess  # ruff: ignore[suspicious-subprocess-import] - the only module that runs external tools
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -45,7 +45,7 @@ class PythonModule(Command):
     def run(self) -> Output:
         """Run the module and capture its output."""
         argv = (sys.executable, "-m", self.module, *self.args)
-        done = subprocess.run(  # noqa: S603 - argv is built from fixed tool names
+        done = subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true] - argv is built from fixed tool names
             argv,
             capture_output=True,
             text=True,

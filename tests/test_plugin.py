@@ -142,3 +142,17 @@ def test_reports_functions_with_five_arguments(
     assert "tidy/box.py:4:5: [ruff:PLR0913]" in result.stdout.str(), (
         "five arguments dont fail the gate"
     )
+
+
+def test_refuses_to_suppress_the_ban_on_mocks_by_name(
+    pytester: pytest.Pytester,
+) -> None:
+    result = project(
+        pytester,
+        '"""A package that sneaks a mock in by name."""\n\n'
+        "from unittest import mock  # ruff: ignore[banned-api] - just once\n\n"
+        '__all__ = ["mock"]\n',
+    ).runpytest_subprocess("--eo")
+    assert "[suppressions:SUP002]" in result.stdout.str(), (
+        "a ruff ignore of the ban on mocks doesnt fail the gate"
+    )

@@ -11,7 +11,7 @@ separate test; its only rules of its own are about suppressions.
 | `eo::ruff-format` | `ruff format --check`                          |
 | `eo::mypy`        | `mypy --strict`                                |
 | `eo::flake8`      | `flake8` with [pyeo](https://pypi.org/project/eo-styleguide/) (Elegant Objects rules) |
-| `eo::suppressions`| `# noqa` comments of the checked files         |
+| `eo::suppressions`| `# noqa` and `# ruff: ignore` comments         |
 
 The pyeo rules enabled so far:
 
@@ -32,13 +32,14 @@ must override a real method and every overriding method must say so.
 Python 3.11 has no `typing.override`; import it from `typing_extensions`.
 
 A rule may be suppressed on one line only, with a reason:
-`# noqa: PEO200 - pytest.Item is mutable by design`. `eo::suppressions`
-enforces it:
+`# noqa: PEO200 - pytest.Item is mutable by design`, or
+`# ruff: ignore[unused-import] - re-exported for plugins`.
+`eo::suppressions` enforces it:
 
 | Code     | Rule                                                     |
 |----------|----------------------------------------------------------|
-| `SUP001` | a `# noqa: CODE` gives a reason after ` - `              |
-| `SUP002` | a `# noqa` never names `TID251`, the ban on mocks        |
+| `SUP001` | a suppression gives a reason after ` - `                 |
+| `SUP002` | a suppression never names `TID251` (`banned-api`), the ban on mocks |
 
 ruff already rejects a bare `# noqa` (`PGH004`), a bare `# type: ignore`
 (`PGH003`) and an unused `# noqa` for its own codes (`RUF100`).

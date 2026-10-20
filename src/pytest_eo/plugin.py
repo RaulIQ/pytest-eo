@@ -34,7 +34,7 @@ class EoItem(pytest.Item):  # noqa: PEO200 - pytest.Item is mutable by design
             raise StyleViolationsError(*found)
 
     @override
-    def repr_failure(  # noqa: PLR0911 - dispatches on the error type until #18
+    def repr_failure(  # ruff: ignore[too-many-return-statements] - dispatches on the error type until #18
         self,
         excinfo: pytest.ExceptionInfo[BaseException],
         style: object = None,

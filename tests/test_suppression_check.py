@@ -55,3 +55,44 @@ def test_ignores_noqa_inside_a_string(tmp_path: Path) -> None:
 def test_ignores_comments_without_noqa(tmp_path: Path) -> None:
     files = source(tmp_path, "x = 1  # the answer\n")
     assert SuppressionCheck(files, ()).violations() == ()
+
+
+def test_reports_a_ruff_ignore_without_a_reason(tmp_path: Path) -> None:
+    files = source(tmp_path, "import os  # ruff: ignore[unused-import]\n")
+    assert SuppressionCheck(files, ()).violations()[0].code == "SUP001"
+
+
+def test_passes_a_ruff_ignore_with_a_reason(tmp_path: Path) -> None:
+    files = source(
+        tmp_path, "import os  # ruff: ignore[unused-import] - for plugins\n"
+    )
+    assert SuppressionCheck(files, ("banned-api",)).violations() == ()
+
+
+def test_reports_a_forbidden_name_in_a_ruff_ignore(tmp_path: Path) -> None:
+    files = source(tmp_path, "import mock  # ruff: ignore[banned-api] - once\n")
+    assert SuppressionCheck(files, ("banned",)).violations()[0].code == "SUP002"
+
+
+def test_reports_a_forbidden_code_in_a_ruff_ignore(tmp_path: Path) -> None:
+    files = source(tmp_path, "import mock  # ruff: ignore[F401, TID251] - x\n")
+    assert SuppressionCheck(files, ("TID",)).violations()[0].code == "SUP002"
+
+
+def test_reports_a_ruff_ignore_on_its_own_line(tmp_path: Path) -> None:
+    files = source(
+        tmp_path, "# ruff: ignore[banned-api]\nfrom unittest import mock\n"
+    )
+    assert SuppressionCheck(files, ()).violations()[0].line == 1
+
+
+def test_reports_a_ruff_ignore_without_spaces(tmp_path: Path) -> None:
+    files = source(tmp_path, "import os  #ruff:ignore[unused-import]\n")
+    assert SuppressionCheck(files, ()).violations()[0].code == "SUP001"
+
+
+def test_quotes_the_ruff_ignore_in_the_message(tmp_path: Path) -> None:
+    files = source(tmp_path, "import os  # ruff: ignore[unused-import]\n")
+    assert "`# ruff: ignore[unused-import]`" in (
+        SuppressionCheck(files, ()).violations()[0].message
+    )

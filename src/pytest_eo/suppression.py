@@ -14,8 +14,21 @@ from pytest_eo.check import Check
 from pytest_eo.project import Files
 from pytest_eo.violation import Violation
 
-_NOQA = re.compile(
-    r"#\s*noqa:\s*(?P<codes>[A-Z]+\d*(?:\s*,\s*[A-Z]+\d*)*)(?P<rest>[^#]*)",
+_FORMS = (
+    (
+        re.compile(
+            r"#\s*noqa:\s*(?P<codes>[A-Z]+\d*(?:\s*,\s*[A-Z]+\d*)*)"
+            r"(?P<rest>[^#]*)",
+        ),
+        "# noqa: {}",
+    ),
+    (
+        re.compile(
+            r"#\s*ruff:\s*ignore\[(?P<codes>[\w-]+(?:\s*,\s*[\w-]+)*)\]"
+            r"(?P<rest>[^#]*)",
+        ),
+        "# ruff: ignore[{}]",
+    ),
 )
 _REASON = re.compile(r"^\s+-\s+\S")
 
@@ -31,10 +44,19 @@ def _comments(file: Path) -> Iterator[tuple[int, int, str]]:
             yield token.start[0], token.start[1], token.string
 
 
+def _matches(text: str) -> Iterator[tuple[str, re.Match[str]]]:
+    for form, template in _FORMS:
+        for match in form.finditer(text):
+            yield template, match
+
+
 @final
 @dataclass(frozen=True, slots=True)
 class SuppressionCheck(Check):
-    """``# noqa`` comments that give no reason or silence a forbidden code."""
+    """Suppressions that give no reason or silence a forbidden rule.
+
+    It reads both ``# noqa: CODE`` and ``# ruff: ignore[CODE-OR-NAME]``.
+    """
 
     sources: Files
     forbidden: tuple[str, ...]
@@ -54,17 +76,18 @@ class SuppressionCheck(Check):
 
     def _file(self, file: Path) -> Iterator[Violation]:
         for line, column, text in _comments(file):
-            for match in _NOQA.finditer(text):
+            for template, match in _matches(text):
                 place = (str(file), line, column + match.start() + 1)
-                yield from self._match(place, match)
+                yield from self._match(place, template, match)
 
     def _match(
         self,
         place: tuple[str, int, int],
+        template: str,
         match: re.Match[str],
     ) -> Iterator[Violation]:
         codes = tuple(code.strip() for code in match["codes"].split(","))
-        listed = f"# noqa: {', '.join(codes)}"
+        listed = template.format(", ".join(codes))
         banned = tuple(
             code for code in codes if code.startswith(self.forbidden)
         )
