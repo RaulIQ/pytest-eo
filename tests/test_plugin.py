@@ -300,3 +300,23 @@ def test_refuses_to_switch_flake8_off_for_a_file(
         contains_string("tidy/box.py:1:1: [suppressions:SUP003]"),
         "a file-wide flake8 noqa doesnt fail the gate",
     )
+
+
+def test_reports_a_tool_that_cannot_run(pytester: pytest.Pytester) -> None:
+    pytester.makepyprojecttoml('[tool.eo]\npaths = ["nowhere"]\n')
+    assert_that(
+        pytester.runpytest_subprocess("--eo").stdout.str(),
+        contains_string("tool failure: mypy exited with 2"),
+        "a tool that cannot run isnt reported as a tool failure",
+    )
+
+
+def test_reports_a_file_that_isnt_utf8(pytester: pytest.Pytester) -> None:
+    pytester.makepyprojecttoml('[tool.eo]\npaths = ["src"]\n')
+    (pytester.path / "src").mkdir()
+    (pytester.path / "src" / "latin.py").write_bytes(b'name = "caf\xe9"\n')
+    assert_that(
+        pytester.runpytest_subprocess("--eo").stdout.str(),
+        contains_string("'utf-8' codec can't decode byte 0xe9"),
+        "a file that isnt utf-8 doesnt fail the suppression check loudly",
+    )

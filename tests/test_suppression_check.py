@@ -285,3 +285,12 @@ def test_names_a_flake8_form_in_the_message(tmp_path: Path) -> None:
         contains_string("`# flake8:noqa`"),
         "the message doesnt name the flake8 form",
     )
+
+
+def test_skips_a_file_that_cannot_be_tokenized(tmp_path: Path) -> None:
+    files = source(tmp_path, 'note = """never closed  # noqa: F401\n')
+    assert_that(
+        SuppressionCheck(files, ()).violations(),
+        empty(),
+        "a file that cannot be tokenized isnt skipped",
+    )
