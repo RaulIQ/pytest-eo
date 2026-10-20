@@ -130,6 +130,23 @@ def test_reports_reflection(pytester: pytest.Pytester) -> None:
     )
 
 
+def test_reports_private_methods(pytester: pytest.Pytester) -> None:
+    result = project(
+        pytester,
+        '"""A package that hides a function."""\n'
+        "\n"
+        "\n"
+        "def _half(number: int) -> int:\n"
+        '    """Return half of the number."""\n'
+        "    return number // 2\n",
+    ).runpytest_subprocess("--eo")
+    assert_that(
+        result.stdout.str(),
+        contains_string("tidy/box.py:4:1: [flake8:NPM100]"),
+        "a private function doesnt fail the gate",
+    )
+
+
 def test_reports_public_methods_after_private_ones(
     pytester: pytest.Pytester,
 ) -> None:
