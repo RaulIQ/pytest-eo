@@ -1,12 +1,12 @@
 """The locked profile: which tools run, with which bundled configuration."""
 
 from dataclasses import dataclass
-from importlib import resources
 from pathlib import Path
 from typing import final
 
 from typing_extensions import override
 
+from pytest_eo.bundled import Bundled
 from pytest_eo.check import Check
 from pytest_eo.flake_check import FlakeCheck
 from pytest_eo.layout import Layout
@@ -20,10 +20,6 @@ from pytest_eo.suppression_check import SuppressionCheck
 
 # The rule a suppression may never name, by code or by name: the ban on mocks.
 UNSUPPRESSIBLE = ("TID251", "banned-api")
-
-
-def _bundled(name: str) -> str:
-    return str(resources.files("pytest_eo") / "config" / name)
 
 
 @final
@@ -44,7 +40,7 @@ class Strict(Profile):
             for pattern in self.layout.excludes()
             for arg in ("--extend-exclude", pattern)
         )
-        ruff_config = ("--config", _bundled("ruff.toml"), *skipped)
+        ruff_config = ("--config", str(Bundled("ruff.toml")), *skipped)
         flake_skipped = (
             ("--extend-exclude", ",".join(self.layout.excludes()))
             if self.layout.excludes()
@@ -91,7 +87,7 @@ class Strict(Profile):
                     (
                         "--strict",
                         "--config-file",
-                        _bundled("mypy.ini"),
+                        str(Bundled("mypy.ini")),
                         "--output",
                         "json",
                         *mypy_skipped,
@@ -105,7 +101,7 @@ class Strict(Profile):
                     "flake8",
                     (
                         "--config",
-                        _bundled("flake8.ini"),
+                        str(Bundled("flake8.ini")),
                         *flake_skipped,
                         *paths,
                     ),

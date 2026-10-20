@@ -1,6 +1,5 @@
-"""The project under check and its ``[tool.eo]`` table."""
+"""The project under check and its settings."""
 
-import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import final
@@ -8,39 +7,29 @@ from typing import final
 from typing_extensions import override
 
 from pytest_eo.layout import Layout
+from pytest_eo.table import Table
 
 
 @final
 @dataclass(frozen=True, slots=True)
 class Project(Layout):
-    """A directory whose ``pyproject.toml`` may hold a ``[tool.eo]`` table."""
+    """A directory checked as its settings say, or as its layout suggests."""
 
+    table: Table
     root: Path
 
     @override
     def paths(self) -> tuple[str, ...]:
-        """Directories to check: ``[tool.eo] paths`` or existing src/tests."""
-        configured = self._settings().get("paths")
-        if isinstance(configured, list) and configured:  # noqa: PEO700 - TOML gives untyped data
-            return tuple(str(item) for item in configured)
-        existing = tuple(
-            name for name in ("src", "tests") if (self.root / name).is_dir()
+        """Directories to check: the configured ones or existing src/tests."""
+        return (
+            self.table.strings("paths")
+            or tuple(
+                name for name in ("src", "tests") if (self.root / name).is_dir()
+            )
+            or (".",)
         )
-        return existing or (".",)
 
     @override
     def excludes(self) -> tuple[str, ...]:
-        """Glob patterns to skip: ``[tool.eo] exclude``."""
-        configured = self._settings().get("exclude")
-        if isinstance(configured, list):  # noqa: PEO700 - TOML gives untyped data
-            return tuple(str(item) for item in configured)
-        return ()
-
-    def _settings(self) -> dict[str, object]:
-        file = self.root / "pyproject.toml"
-        if not file.is_file():
-            return {}
-        table = tomllib.loads(file.read_text(encoding="utf-8"))
-        tool = table.get("tool", {})
-        eo = tool.get("eo", {}) if isinstance(tool, dict) else {}  # noqa: PEO700 - TOML gives untyped data
-        return eo if isinstance(eo, dict) else {}  # noqa: PEO700 - TOML gives untyped data
+        """Glob patterns to skip, as configured."""
+        return self.table.strings("exclude")

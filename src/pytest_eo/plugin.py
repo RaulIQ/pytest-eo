@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from pytest_eo.eo_item import EoItem
+from pytest_eo.eo_table import EoTable
 from pytest_eo.project import Project
 from pytest_eo.strict import Strict
 
@@ -37,5 +38,8 @@ def pytest_collection_modifyitems(
             nodeid=f"eo::{check.name}",
             check=check,
         )
-        for check in Strict(Project(root), root).checks()
+        for check in Strict(
+            Project(EoTable(root / "pyproject.toml"), root),
+            root,
+        ).checks()
     )
