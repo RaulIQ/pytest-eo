@@ -11,11 +11,11 @@ from typing_extensions import override
 class Place:
     """A file, a line and a column, as tools and editors point at code."""
 
-    path: str
-    line: int
-    column: int
+    _path: str
+    _line: int
+    _column: int
 
     @override
     def __str__(self) -> str:
         """Render as ``path:line:col``."""
-        return f"{self.path}:{self.line}:{self.column}"
+        return f"{self._path}:{self._line}:{self._column}"

@@ -37,14 +37,14 @@ class RuffCheck(Check):
             raise ToolFailedError(message) from error
         return tuple(
             Violation(
-                tool=self.name(),
-                code=item["code"] or "syntax",
-                place=Place(
+                self.name(),
+                item["code"] or "syntax",
+                Place(
                     item["filename"],
                     item["location"]["row"],
                     item["location"]["column"],
                 ),
-                message=item["message"],
+                item["message"],
             )
             for item in items
         )

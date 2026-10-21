@@ -1,6 +1,12 @@
 from pathlib import Path
 
-from hamcrest import assert_that, contains_string, empty, equal_to
+from hamcrest import (
+    assert_that,
+    contains_string,
+    empty,
+    has_string,
+    matches_regexp,
+)
 
 from pytest_eo.suppression_check import SuppressionCheck
 from tests.support.fake_files import FakeFiles
@@ -26,8 +32,8 @@ def test_passes_a_suppression_with_a_reason(tmp_path: Path) -> None:
 def test_reports_a_suppression_without_a_reason(tmp_path: Path) -> None:
     files = source(tmp_path, "import os  # noqa: F401\n")
     assert_that(
-        SuppressionCheck(files, ()).violations()[0].code,
-        equal_to("SUP001"),
+        SuppressionCheck(files, ()).violations()[0],
+        has_string(contains_string(":SUP001]")),
         "a suppression without a reason doesnt fail",
     )
 
@@ -35,8 +41,8 @@ def test_reports_a_suppression_without_a_reason(tmp_path: Path) -> None:
 def test_reports_the_line_of_the_suppression(tmp_path: Path) -> None:
     files = source(tmp_path, "x = 1\nimport os  # noqa: F401\n")
     assert_that(
-        SuppressionCheck(files, ()).violations()[0].place.line,
-        equal_to(2),
+        SuppressionCheck(files, ()).violations()[0],
+        has_string(matches_regexp(r"^\S+?:2:\d+: ")),
         "the suppression isnt reported on its own line",
     )
 
@@ -46,8 +52,8 @@ def test_reports_a_code_that_cannot_be_suppressed(tmp_path: Path) -> None:
         tmp_path, "from unittest import mock  # noqa: TID251 - just once\n"
     )
     assert_that(
-        SuppressionCheck(files, ("TID251",)).violations()[0].code,
-        equal_to("SUP002"),
+        SuppressionCheck(files, ("TID251",)).violations()[0],
+        has_string(contains_string(":SUP002]")),
         "a suppressed forbidden code doesnt fail",
     )
 
@@ -55,8 +61,8 @@ def test_reports_a_code_that_cannot_be_suppressed(tmp_path: Path) -> None:
 def test_reports_a_forbidden_code_among_others(tmp_path: Path) -> None:
     files = source(tmp_path, "import mock  # noqa: F401, TID251 - legacy\n")
     assert_that(
-        SuppressionCheck(files, ("TID",)).violations()[0].code,
-        equal_to("SUP002"),
+        SuppressionCheck(files, ("TID",)).violations()[0],
+        has_string(contains_string(":SUP002]")),
         "a forbidden code among others doesnt fail",
     )
 
@@ -94,8 +100,8 @@ def test_ignores_comments_without_noqa(tmp_path: Path) -> None:
 def test_reports_a_ruff_ignore_without_a_reason(tmp_path: Path) -> None:
     files = source(tmp_path, "import os  # ruff: ignore[unused-import]\n")
     assert_that(
-        SuppressionCheck(files, ()).violations()[0].code,
-        equal_to("SUP001"),
+        SuppressionCheck(files, ()).violations()[0],
+        has_string(contains_string(":SUP001]")),
         "a ruff ignore without a reason doesnt fail",
     )
 
@@ -114,8 +120,8 @@ def test_passes_a_ruff_ignore_with_a_reason(tmp_path: Path) -> None:
 def test_reports_a_forbidden_name_in_a_ruff_ignore(tmp_path: Path) -> None:
     files = source(tmp_path, "import mock  # ruff: ignore[banned-api] - once\n")
     assert_that(
-        SuppressionCheck(files, ("banned",)).violations()[0].code,
-        equal_to("SUP002"),
+        SuppressionCheck(files, ("banned",)).violations()[0],
+        has_string(contains_string(":SUP002]")),
         "a forbidden name in a ruff ignore doesnt fail",
     )
 
@@ -123,8 +129,8 @@ def test_reports_a_forbidden_name_in_a_ruff_ignore(tmp_path: Path) -> None:
 def test_reports_a_forbidden_code_in_a_ruff_ignore(tmp_path: Path) -> None:
     files = source(tmp_path, "import mock  # ruff: ignore[F401, TID251] - x\n")
     assert_that(
-        SuppressionCheck(files, ("TID",)).violations()[0].code,
-        equal_to("SUP002"),
+        SuppressionCheck(files, ("TID",)).violations()[0],
+        has_string(contains_string(":SUP002]")),
         "a forbidden code in a ruff ignore doesnt fail",
     )
 
@@ -134,8 +140,8 @@ def test_reports_a_ruff_ignore_on_its_own_line(tmp_path: Path) -> None:
         tmp_path, "# ruff: ignore[banned-api]\nfrom unittest import mock\n"
     )
     assert_that(
-        SuppressionCheck(files, ()).violations()[0].place.line,
-        equal_to(1),
+        SuppressionCheck(files, ()).violations()[0],
+        has_string(matches_regexp(r"^\S+?:1:\d+: ")),
         "a ruff ignore on its own line isnt reported",
     )
 
@@ -143,8 +149,8 @@ def test_reports_a_ruff_ignore_on_its_own_line(tmp_path: Path) -> None:
 def test_reports_a_ruff_ignore_without_spaces(tmp_path: Path) -> None:
     files = source(tmp_path, "import os  #ruff:ignore[unused-import]\n")
     assert_that(
-        SuppressionCheck(files, ()).violations()[0].code,
-        equal_to("SUP001"),
+        SuppressionCheck(files, ()).violations()[0],
+        has_string(contains_string(":SUP001]")),
         "a ruff ignore without spaces isnt reported",
     )
 
@@ -152,8 +158,8 @@ def test_reports_a_ruff_ignore_without_spaces(tmp_path: Path) -> None:
 def test_quotes_the_ruff_ignore_in_the_message(tmp_path: Path) -> None:
     files = source(tmp_path, "import os  # ruff: ignore[unused-import]\n")
     assert_that(
-        SuppressionCheck(files, ()).violations()[0].message,
-        contains_string("`# ruff: ignore[unused-import]`"),
+        SuppressionCheck(files, ()).violations()[0],
+        has_string(contains_string("`# ruff: ignore[unused-import]`")),
         "the message doesnt quote the ruff ignore",
     )
 
@@ -161,8 +167,10 @@ def test_quotes_the_ruff_ignore_in_the_message(tmp_path: Path) -> None:
 def test_reports_a_file_wide_ruff_noqa(tmp_path: Path) -> None:
     files = source(tmp_path, "# ruff: noqa: TID251 - old code\nimport mock\n")
     assert_that(
-        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
-        equal_to(("SUP003",)),
+        "\n".join(
+            str(found) for found in SuppressionCheck(files, ()).violations()
+        ),
+        matches_regexp(r"\A[^\n]*:SUP003\][^\n]*\Z"),
         "a file-wide ruff noqa doesnt fail",
     )
 
@@ -170,8 +178,10 @@ def test_reports_a_file_wide_ruff_noqa(tmp_path: Path) -> None:
 def test_reports_a_blanket_ruff_noqa(tmp_path: Path) -> None:
     files = source(tmp_path, "# ruff: noqa\nimport os\n")
     assert_that(
-        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
-        equal_to(("SUP003",)),
+        "\n".join(
+            str(found) for found in SuppressionCheck(files, ()).violations()
+        ),
+        matches_regexp(r"\A[^\n]*:SUP003\][^\n]*\Z"),
         "a blanket ruff noqa doesnt fail",
     )
 
@@ -181,8 +191,10 @@ def test_reports_a_ruff_file_ignore_even_with_a_reason(tmp_path: Path) -> None:
         tmp_path, "# ruff: file-ignore[unused-import] - plugins\nimport os\n"
     )
     assert_that(
-        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
-        equal_to(("SUP003",)),
+        "\n".join(
+            str(found) for found in SuppressionCheck(files, ()).violations()
+        ),
+        matches_regexp(r"\A[^\n]*:SUP003\][^\n]*\Z"),
         "a ruff file-ignore with a reason doesnt fail",
     )
 
@@ -196,8 +208,10 @@ def test_reports_a_ruff_range_once(tmp_path: Path) -> None:
         "# ruff: enable[unused-import]\n",
     )
     assert_that(
-        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
-        equal_to(("SUP003",)),
+        "\n".join(
+            str(found) for found in SuppressionCheck(files, ()).violations()
+        ),
+        matches_regexp(r"\A[^\n]*:SUP003\][^\n]*\Z"),
         "a ruff range isnt reported exactly once",
     )
 
@@ -205,8 +219,8 @@ def test_reports_a_ruff_range_once(tmp_path: Path) -> None:
 def test_reports_the_line_of_a_wide_suppression(tmp_path: Path) -> None:
     files = source(tmp_path, '"""Box."""\n\n# ruff:file-ignore[F401]\n')
     assert_that(
-        SuppressionCheck(files, ()).violations()[0].place.line,
-        equal_to(3),
+        SuppressionCheck(files, ()).violations()[0],
+        has_string(matches_regexp(r"^\S+?:3:\d+: ")),
         "a wide suppression isnt reported on its own line",
     )
 
@@ -214,8 +228,8 @@ def test_reports_the_line_of_a_wide_suppression(tmp_path: Path) -> None:
 def test_names_the_form_of_a_wide_suppression(tmp_path: Path) -> None:
     files = source(tmp_path, "# ruff: disable[banned-api]\nimport mock\n")
     assert_that(
-        SuppressionCheck(files, ()).violations()[0].message,
-        contains_string("`# ruff: disable`"),
+        SuppressionCheck(files, ()).violations()[0],
+        has_string(contains_string("`# ruff: disable`")),
         "the message doesnt name the form of the wide suppression",
     )
 
@@ -223,8 +237,10 @@ def test_names_the_form_of_a_wide_suppression(tmp_path: Path) -> None:
 def test_reports_a_file_wide_flake8_noqa(tmp_path: Path) -> None:
     files = source(tmp_path, "# flake8: noqa\nclass Box:\n    pass\n")
     assert_that(
-        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
-        equal_to(("SUP003",)),
+        "\n".join(
+            str(found) for found in SuppressionCheck(files, ()).violations()
+        ),
+        matches_regexp(r"\A[^\n]*:SUP003\][^\n]*\Z"),
         "a file-wide flake8 noqa doesnt fail",
     )
 
@@ -232,8 +248,10 @@ def test_reports_a_file_wide_flake8_noqa(tmp_path: Path) -> None:
 def test_reports_a_mypy_ignore_errors(tmp_path: Path) -> None:
     files = source(tmp_path, "# mypy: ignore-errors\ndef size(x):\n    pass\n")
     assert_that(
-        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
-        equal_to(("SUP003",)),
+        "\n".join(
+            str(found) for found in SuppressionCheck(files, ()).violations()
+        ),
+        matches_regexp(r"\A[^\n]*:SUP003\][^\n]*\Z"),
         "a mypy ignore-errors doesnt fail",
     )
 
@@ -243,8 +261,10 @@ def test_reports_a_mypy_disable_error_code(tmp_path: Path) -> None:
         tmp_path, '# mypy: disable-error-code="no-untyped-def"\nimport os\n'
     )
     assert_that(
-        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
-        equal_to(("SUP003",)),
+        "\n".join(
+            str(found) for found in SuppressionCheck(files, ()).violations()
+        ),
+        matches_regexp(r"\A[^\n]*:SUP003\][^\n]*\Z"),
         "a mypy disable-error-code doesnt fail",
     )
 
@@ -252,8 +272,10 @@ def test_reports_a_mypy_disable_error_code(tmp_path: Path) -> None:
 def test_reports_any_inline_mypy_configuration(tmp_path: Path) -> None:
     files = source(tmp_path, "# mypy: allow-untyped-defs\ndef raw(x): ...\n")
     assert_that(
-        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
-        equal_to(("SUP003",)),
+        "\n".join(
+            str(found) for found in SuppressionCheck(files, ()).violations()
+        ),
+        matches_regexp(r"\A[^\n]*:SUP003\][^\n]*\Z"),
         "an inline mypy configuration doesnt fail",
     )
 
@@ -263,8 +285,10 @@ def test_reports_a_type_ignore_at_the_top_of_a_file(tmp_path: Path) -> None:
         tmp_path, "#!/usr/bin/env python\n# type: ignore\nx: int = ''\n"
     )
     assert_that(
-        tuple(found.code for found in SuppressionCheck(files, ()).violations()),
-        equal_to(("SUP003",)),
+        "\n".join(
+            str(found) for found in SuppressionCheck(files, ()).violations()
+        ),
+        matches_regexp(r"\A[^\n]*:SUP003\][^\n]*\Z"),
         "a type ignore at the top of a file doesnt fail",
     )
 
@@ -281,8 +305,8 @@ def test_ignores_a_type_ignore_below_the_first_code(tmp_path: Path) -> None:
 def test_names_a_flake8_form_in_the_message(tmp_path: Path) -> None:
     files = source(tmp_path, "#flake8:noqa\nimport os\n")
     assert_that(
-        SuppressionCheck(files, ()).violations()[0].message,
-        contains_string("`# flake8:noqa`"),
+        SuppressionCheck(files, ()).violations()[0],
+        has_string(contains_string("`# flake8:noqa`")),
         "the message doesnt name the flake8 form",
     )
 

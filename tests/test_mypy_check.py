@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from hamcrest import assert_that, empty, equal_to, has_length
+from hamcrest import assert_that, contains_string, empty, has_length, has_string
 
 from pytest_eo.mypy_check import MypyCheck
 from pytest_eo.output import Output
@@ -31,8 +31,8 @@ def test_reports_the_error_code_mypy_found() -> None:
     )
     check = MypyCheck(FakeCommand(Output(error, "", 1)))
     assert_that(
-        check.violations()[0].code,
-        equal_to("no-untyped-def"),
+        check.violations()[0],
+        has_string(contains_string(":no-untyped-def]")),
         "the error code of mypy isnt reported",
     )
 

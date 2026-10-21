@@ -1,7 +1,7 @@
 import tokenize
 from pathlib import Path
 
-from hamcrest import assert_that, empty, equal_to
+from hamcrest import assert_that, empty, equal_to, matches_regexp
 
 from pytest_eo.comment import Comment
 from pytest_eo.narrow_suppressions import NarrowSuppressions
@@ -38,8 +38,8 @@ def test_reports_a_suppression_without_a_reason() -> None:
 
 def test_reports_a_code_that_cannot_be_suppressed() -> None:
     assert_that(
-        tuple(
-            found.code
+        "\n".join(
+            str(found)
             for found in NarrowSuppressions(
                 "sup",
                 Comment(
@@ -56,7 +56,7 @@ def test_reports_a_code_that_cannot_be_suppressed() -> None:
                 ("TID251",),
             )
         ),
-        equal_to(("SUP002",)),
+        matches_regexp(r"\A[^\n]*:SUP002\][^\n]*\Z"),
         "a forbidden code isnt reported",
     )
 

@@ -1,4 +1,4 @@
-from hamcrest import assert_that, empty, equal_to, has_length
+from hamcrest import assert_that, empty, has_length, has_string, starts_with
 
 from pytest_eo.output import Output
 from pytest_eo.ruff_format_check import RuffFormatCheck
@@ -25,8 +25,8 @@ def test_reports_each_file_the_formatter_would_change() -> None:
         ),
     )
     assert_that(
-        check.violations()[0].place.path,
-        equal_to("src/app.py"),
+        check.violations()[0],
+        has_string(starts_with("src/app.py" + ":")),
         "a file the formatter would change isnt reported",
     )
 

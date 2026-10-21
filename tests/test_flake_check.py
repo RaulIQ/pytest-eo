@@ -1,5 +1,11 @@
 import pytest
-from hamcrest import assert_that, empty, equal_to
+from hamcrest import (
+    assert_that,
+    contains_string,
+    empty,
+    has_string,
+    matches_regexp,
+)
 
 from pytest_eo.flake_check import FlakeCheck
 from pytest_eo.output import Output
@@ -23,8 +29,8 @@ def test_reports_the_rule_code_flake8_found() -> None:
         ),
     )
     assert_that(
-        check.violations()[0].code,
-        equal_to("FIN100"),
+        check.violations()[0],
+        has_string(contains_string(":FIN100]")),
         "the rule code of flake8 isnt reported",
     )
 
@@ -34,8 +40,8 @@ def test_reports_the_line_flake8_found() -> None:
         FakeCommand(Output("lib/wheel.py:17:3: PEO400 no static\n", "", 1)),
     )
     assert_that(
-        check.violations()[0].place.line,
-        equal_to(17),
+        check.violations()[0],
+        has_string(matches_regexp(r"^\S+?:17:\d+: ")),
         "the line of a flake8 finding isnt reported",
     )
 

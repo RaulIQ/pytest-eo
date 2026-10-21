@@ -36,12 +36,10 @@ class FlakeCheck(Check):
         )
         found = tuple(
             Violation(
-                tool=self.name(),
-                code=match["code"],
-                place=Place(
-                    match["path"], int(match["line"]), int(match["col"])
-                ),
-                message=match["msg"],
+                self.name(),
+                match["code"],
+                Place(match["path"], int(match["line"]), int(match["col"])),
+                match["msg"],
             )
             for match in (
                 pattern.match(line) for line in output.stdout.splitlines()

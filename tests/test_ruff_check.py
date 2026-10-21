@@ -1,7 +1,13 @@
 import json
 
 import pytest
-from hamcrest import assert_that, empty, equal_to
+from hamcrest import (
+    assert_that,
+    contains_string,
+    empty,
+    has_string,
+    matches_regexp,
+)
 
 from pytest_eo.output import Output
 from pytest_eo.ruff_check import RuffCheck
@@ -31,8 +37,8 @@ def test_reports_the_rule_code_ruff_found() -> None:
     )
     check = RuffCheck(FakeCommand(Output(report, "", 1)))
     assert_that(
-        check.violations()[0].code,
-        equal_to("F401"),
+        check.violations()[0],
+        has_string(contains_string(":F401]")),
         "the rule code of ruff isnt reported",
     )
 
@@ -50,8 +56,8 @@ def test_reports_the_line_ruff_found() -> None:
     )
     check = RuffCheck(FakeCommand(Output(report, "", 1)))
     assert_that(
-        check.violations()[0].place.line,
-        equal_to(23),
+        check.violations()[0],
+        has_string(matches_regexp(r"^\S+?:23:\d+: ")),
         "the line of a ruff finding isnt reported",
     )
 

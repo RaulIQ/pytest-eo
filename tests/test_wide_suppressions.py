@@ -1,7 +1,7 @@
 import tokenize
 from pathlib import Path
 
-from hamcrest import assert_that, empty, equal_to
+from hamcrest import assert_that, empty, equal_to, matches_regexp
 
 from pytest_eo.comment import Comment
 from pytest_eo.wide_suppressions import WideSuppressions
@@ -37,8 +37,8 @@ def test_reports_a_file_wide_suppression() -> None:
 
 def test_reports_a_type_ignore_in_the_header() -> None:
     assert_that(
-        tuple(
-            found.code
+        "\n".join(
+            str(found)
             for found in WideSuppressions(
                 "sup",
                 Comment(
@@ -50,7 +50,7 @@ def test_reports_a_type_ignore_in_the_header() -> None:
                 ),
             )
         ),
-        equal_to(("SUP003",)),
+        matches_regexp(r"\A[^\n]*:SUP003\][^\n]*\Z"),
         "a type ignore above the first code isnt reported",
     )
 

@@ -13,12 +13,12 @@ from pytest_eo.place import Place
 class Violation:
     """What is wrong, where, and which tool says so."""
 
-    tool: str
-    code: str
-    place: Place
-    message: str
+    _tool: str
+    _code: str
+    _place: Place
+    _message: str
 
     @override
     def __str__(self) -> str:
         """Render as ``path:line:col: [tool:code] message``."""
-        return f"{self.place}: [{self.tool}:{self.code}] {self.message}"
+        return f"{self._place}: [{self._tool}:{self._code}] {self._message}"

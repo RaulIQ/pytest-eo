@@ -35,10 +35,10 @@ class MypyCheck(Check):
         items = (json.loads(line) for line in lines)
         return tuple(
             Violation(
-                tool=self.name(),
-                code=item["code"] or "error",
-                place=Place(item["file"], item["line"], item["column"]),
-                message=item["message"],
+                self.name(),
+                item["code"] or "error",
+                Place(item["file"], item["line"], item["column"]),
+                item["message"],
             )
             for item in items
             if item["severity"] == "error"
