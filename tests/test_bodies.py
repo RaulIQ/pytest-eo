@@ -20,3 +20,18 @@ def test_reports_a_blank_line_as_its_own_plugin() -> None:
         equal_to(((3, "BOD100", Bodies),)),
         "a blank line isnt reported by the plugin of bodies",
     )
+
+
+def test_reports_a_comment_as_its_own_plugin() -> None:
+    code = "def salmon():\n    # leap\n    return 5\n"
+    assert_that(
+        tuple(
+            (line, text.split()[0], plugin)
+            for line, _, text, plugin in Bodies(
+                ast.parse(code),
+                tuple(tokenize.generate_tokens(io.StringIO(code).readline)),
+            ).run()
+        ),
+        equal_to(((2, "BOD200", Bodies),)),
+        "a comment isnt reported by the plugin of bodies",
+    )

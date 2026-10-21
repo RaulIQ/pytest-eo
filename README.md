@@ -56,6 +56,7 @@ More rules of its own cover every file, tests or not:
 |----------|----------------------------------------------------------|
 | `ENC100` | a class encapsulates one to four attributes; a `Protocol` is exempt |
 | `BOD100` | a function body holds no blank lines, except around a nested `def` or `class` |
+| `BOD200` | a function body holds no comments, except suppressions |
 
 As in Qulice, which rejects plain JUnit assertions, a test asserts through a
 Hamcrest matcher, never through a plain `assert`; ruff's `S101` stays on in

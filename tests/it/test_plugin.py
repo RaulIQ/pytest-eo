@@ -225,6 +225,24 @@ def test_reports_blank_lines_in_a_function(pytester: pytest.Pytester) -> None:
     )
 
 
+def test_reports_comments_in_a_function(pytester: pytest.Pytester) -> None:
+    result = project(
+        pytester,
+        '"""A package that explains a function from inside."""\n'
+        "\n"
+        "\n"
+        "def triple(number: int) -> int:\n"
+        '    """Return three times the number."""\n'
+        "    # add the number to its double\n"
+        "    return number * 2 + number\n",
+    ).runpytest_subprocess("--eo")
+    assert_that(
+        result.stdout.str(),
+        contains_string("tidy/box.py:6:5: [flake8:BOD200]"),
+        "a comment in a function doesnt fail the gate",
+    )
+
+
 def test_reports_private_methods(pytester: pytest.Pytester) -> None:
     result = project(
         pytester,
