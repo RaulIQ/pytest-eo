@@ -5,6 +5,8 @@ from typing import final
 
 from typing_extensions import override
 
+from pytest_eo.place import Place
+
 
 @final
 @dataclass(frozen=True, slots=True)
@@ -13,13 +15,10 @@ class Violation:
 
     tool: str
     code: str
-    path: str
-    line: int
-    column: int
+    place: Place
     message: str
 
     @override
     def __str__(self) -> str:
         """Render as ``path:line:col: [tool:code] message``."""
-        place = f"{self.path}:{self.line}:{self.column}"
-        return f"{place}: [{self.tool}:{self.code}] {self.message}"
+        return f"{self.place}: [{self.tool}:{self.code}] {self.message}"

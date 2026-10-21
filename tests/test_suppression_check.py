@@ -35,7 +35,7 @@ def test_reports_a_suppression_without_a_reason(tmp_path: Path) -> None:
 def test_reports_the_line_of_the_suppression(tmp_path: Path) -> None:
     files = source(tmp_path, "x = 1\nimport os  # noqa: F401\n")
     assert_that(
-        SuppressionCheck(files, ()).violations()[0].line,
+        SuppressionCheck(files, ()).violations()[0].place.line,
         equal_to(2),
         "the suppression isnt reported on its own line",
     )
@@ -134,7 +134,7 @@ def test_reports_a_ruff_ignore_on_its_own_line(tmp_path: Path) -> None:
         tmp_path, "# ruff: ignore[banned-api]\nfrom unittest import mock\n"
     )
     assert_that(
-        SuppressionCheck(files, ()).violations()[0].line,
+        SuppressionCheck(files, ()).violations()[0].place.line,
         equal_to(1),
         "a ruff ignore on its own line isnt reported",
     )
@@ -205,7 +205,7 @@ def test_reports_a_ruff_range_once(tmp_path: Path) -> None:
 def test_reports_the_line_of_a_wide_suppression(tmp_path: Path) -> None:
     files = source(tmp_path, '"""Box."""\n\n# ruff:file-ignore[F401]\n')
     assert_that(
-        SuppressionCheck(files, ()).violations()[0].line,
+        SuppressionCheck(files, ()).violations()[0].place.line,
         equal_to(3),
         "a wide suppression isnt reported on its own line",
     )

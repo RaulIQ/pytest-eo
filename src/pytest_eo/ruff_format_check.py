@@ -8,6 +8,7 @@ from typing_extensions import override
 
 from pytest_eo.check import Check
 from pytest_eo.command import Command
+from pytest_eo.place import Place
 from pytest_eo.verified import Verified
 from pytest_eo.violation import Violation
 
@@ -37,9 +38,9 @@ class RuffFormatCheck(Check):
             Violation(
                 tool=self.name(),
                 code=match["code"],
-                path=match["path"],
-                line=int(match["line"]),
-                column=int(match["col"]),
+                place=Place(
+                    match["path"], int(match["line"]), int(match["col"])
+                ),
                 message=match["msg"],
             )
             for match in found

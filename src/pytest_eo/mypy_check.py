@@ -8,6 +8,7 @@ from typing_extensions import override
 
 from pytest_eo.check import Check
 from pytest_eo.command import Command
+from pytest_eo.place import Place
 from pytest_eo.verified import Verified
 from pytest_eo.violation import Violation
 
@@ -36,9 +37,7 @@ class MypyCheck(Check):
             Violation(
                 tool=self.name(),
                 code=item["code"] or "error",
-                path=item["file"],
-                line=item["line"],
-                column=item["column"],
+                place=Place(item["file"], item["line"], item["column"]),
                 message=item["message"],
             )
             for item in items

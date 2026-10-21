@@ -8,6 +8,7 @@ from typing import final
 from typing_extensions import override
 
 from pytest_eo.comment import Comment
+from pytest_eo.place import Place
 from pytest_eo.violation import Violation
 
 _FORMS = (
@@ -50,7 +51,9 @@ class NarrowSuppressions(Iterable[Violation]):
             for form, template in _FORMS
             for match in form.finditer(self.comment.token.string)
         ):
-            place = (str(self.comment.file), line, column + match.start() + 1)
+            place = Place(
+                str(self.comment.file), line, column + match.start() + 1
+            )
             codes = tuple(code.strip() for code in match["codes"].split(","))
             listed = template.format(", ".join(codes))
             banned = tuple(
@@ -60,7 +63,7 @@ class NarrowSuppressions(Iterable[Violation]):
                 yield Violation(
                     self.tool,
                     "SUP002",
-                    *place,
+                    place,
                     f"{', '.join(banned)} cannot be suppressed: "
                     "fix the code instead",
                 )
@@ -68,7 +71,7 @@ class NarrowSuppressions(Iterable[Violation]):
                 yield Violation(
                     self.tool,
                     "SUP001",
-                    *place,
+                    place,
                     f"`{listed}` needs a reason: "
                     f"write `{listed} - why the rule cannot hold here`",
                 )

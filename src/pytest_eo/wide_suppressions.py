@@ -8,6 +8,7 @@ from typing import final
 from typing_extensions import override
 
 from pytest_eo.comment import Comment
+from pytest_eo.place import Place
 from pytest_eo.violation import Violation
 
 _SPREAD = r"ruff:\s*(?:noqa|file-ignore|disable)\b|flake8:\s*noqa\b|mypy:"
@@ -35,9 +36,7 @@ class WideSuppressions(Iterable[Violation]):
             Violation(
                 self.tool,
                 "SUP003",
-                str(self.comment.file),
-                line,
-                column + match.start() + 1,
+                Place(str(self.comment.file), line, column + match.start() + 1),
                 f"`# {match['kind']}` suppresses beyond its own line: "
                 "suppress on that one line instead, with a reason",
             )

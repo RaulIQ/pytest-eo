@@ -34,7 +34,7 @@ def test_reports_the_line_flake8_found() -> None:
         FakeCommand(Output("lib/wheel.py:17:3: PEO400 no static\n", "", 1)),
     )
     assert_that(
-        check.violations()[0].line,
+        check.violations()[0].place.line,
         equal_to(17),
         "the line of a flake8 finding isnt reported",
     )

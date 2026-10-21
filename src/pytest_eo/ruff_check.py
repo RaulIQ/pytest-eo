@@ -8,6 +8,7 @@ from typing_extensions import override
 
 from pytest_eo.check import Check
 from pytest_eo.command import Command
+from pytest_eo.place import Place
 from pytest_eo.tool_failed_error import ToolFailedError
 from pytest_eo.verified import Verified
 from pytest_eo.violation import Violation
@@ -38,9 +39,11 @@ class RuffCheck(Check):
             Violation(
                 tool=self.name(),
                 code=item["code"] or "syntax",
-                path=item["filename"],
-                line=item["location"]["row"],
-                column=item["location"]["column"],
+                place=Place(
+                    item["filename"],
+                    item["location"]["row"],
+                    item["location"]["column"],
+                ),
                 message=item["message"],
             )
             for item in items

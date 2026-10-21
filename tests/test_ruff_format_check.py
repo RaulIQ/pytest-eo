@@ -25,7 +25,7 @@ def test_reports_each_file_the_formatter_would_change() -> None:
         ),
     )
     assert_that(
-        check.violations()[0].path,
+        check.violations()[0].place.path,
         equal_to("src/app.py"),
         "a file the formatter would change isnt reported",
     )

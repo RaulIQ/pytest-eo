@@ -50,7 +50,7 @@ def test_reports_the_line_ruff_found() -> None:
     )
     check = RuffCheck(FakeCommand(Output(report, "", 1)))
     assert_that(
-        check.violations()[0].line,
+        check.violations()[0].place.line,
         equal_to(23),
         "the line of a ruff finding isnt reported",
     )
