@@ -206,6 +206,25 @@ def test_reports_public_attributes(pytester: pytest.Pytester) -> None:
     )
 
 
+def test_reports_blank_lines_in_a_function(pytester: pytest.Pytester) -> None:
+    result = project(
+        pytester,
+        '"""A package that splits a function in two."""\n'
+        "\n"
+        "\n"
+        "def triple(number: int) -> int:\n"
+        '    """Return three times the number."""\n'
+        "    twice = number * 2\n"
+        "\n"
+        "    return twice + number\n",
+    ).runpytest_subprocess("--eo")
+    assert_that(
+        result.stdout.str(),
+        contains_string("tidy/box.py:7:1: [flake8:BOD100]"),
+        "a blank line in a function doesnt fail the gate",
+    )
+
+
 def test_reports_private_methods(pytester: pytest.Pytester) -> None:
     result = project(
         pytester,
