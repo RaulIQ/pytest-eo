@@ -10,19 +10,21 @@ from typing import final
 from typing_extensions import override
 
 from pytest_eo.comment import Comment
+from pytest_eo.heading import Heading
+from pytest_eo.remark import Remark
 
 _SILENT = (tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE, tokenize.ENCODING)
 
 
 @final
 @dataclass(frozen=True, slots=True)
-class Comments(Iterable[Comment]):
+class Comments(Iterable[Remark]):
     """Every comment of a file, or none when the file cannot be tokenized."""
 
     _file: Path
 
     @override
-    def __iter__(self) -> Iterator[Comment]:
+    def __iter__(self) -> Iterator[Remark]:
         """Read the comments in order, telling the header from the rest."""
         text = self._file.read_text(encoding="utf-8")
         try:
@@ -36,4 +38,5 @@ class Comments(Iterable[Comment]):
         )
         for token in tokens:
             if token.type == tokenize.COMMENT:
-                yield Comment(self._file, token, header=token.start < code)
+                comment = Comment(self._file, token)
+                yield Heading(comment) if token.start < code else comment

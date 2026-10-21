@@ -4,6 +4,7 @@ from pathlib import Path
 from hamcrest import assert_that, empty, equal_to, matches_regexp
 
 from pytest_eo.comment import Comment
+from pytest_eo.heading import Heading
 from pytest_eo.wide_suppressions import WideSuppressions
 
 
@@ -18,7 +19,6 @@ def test_reports_a_file_wide_suppression() -> None:
                     tokenize.TokenInfo(
                         tokenize.COMMENT, "# flake8: noqa", (5, 2), (5, 16), ""
                     ),
-                    header=False,
                 ),
             )
         ),
@@ -41,12 +41,17 @@ def test_reports_a_type_ignore_in_the_header() -> None:
             str(found)
             for found in WideSuppressions(
                 "sup",
-                Comment(
-                    Path("lib/yew.py"),
-                    tokenize.TokenInfo(
-                        tokenize.COMMENT, "# type: ignore", (1, 0), (1, 14), ""
+                Heading(
+                    Comment(
+                        Path("lib/yew.py"),
+                        tokenize.TokenInfo(
+                            tokenize.COMMENT,
+                            "# type: ignore",
+                            (1, 0),
+                            (1, 14),
+                            "",
+                        ),
                     ),
-                    header=True,
                 ),
             )
         ),
@@ -65,7 +70,6 @@ def test_passes_a_type_ignore_below_the_first_code() -> None:
                     tokenize.TokenInfo(
                         tokenize.COMMENT, "# type: ignore", (6, 9), (6, 23), ""
                     ),
-                    header=False,
                 ),
             ),
         ),

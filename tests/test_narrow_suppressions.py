@@ -18,7 +18,6 @@ def test_reports_a_suppression_without_a_reason() -> None:
                     tokenize.TokenInfo(
                         tokenize.COMMENT, "# noqa: F401", (3, 9), (3, 21), ""
                     ),
-                    header=False,
                 ),
                 (),
             )
@@ -51,7 +50,6 @@ def test_reports_a_code_that_cannot_be_suppressed() -> None:
                         (8, 34),
                         "",
                     ),
-                    header=False,
                 ),
                 ("TID251",),
             )
@@ -75,7 +73,6 @@ def test_passes_a_suppression_with_a_reason() -> None:
                         (2, 29),
                         "",
                     ),
-                    header=False,
                 ),
                 ("TID251",),
             ),

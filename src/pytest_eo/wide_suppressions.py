@@ -7,13 +7,12 @@ from typing import final
 
 from typing_extensions import override
 
-from pytest_eo.comment import Comment
-from pytest_eo.place import Place
+from pytest_eo.remark import Remark
 from pytest_eo.violation import Violation
 
 _SPREAD = r"ruff:\s*(?:noqa|file-ignore|disable)\b|flake8:\s*noqa\b|mypy:"
 _WIDE = re.compile(rf"#\s*(?P<kind>{_SPREAD})")
-_HEADER = re.compile(rf"#\s*(?P<kind>{_SPREAD}|type:\s*ignore\b(?!\[))")
+_BARE = re.compile(r"#\s*(?P<kind>type:\s*ignore\b(?!\[))")
 
 
 @final
@@ -26,23 +25,21 @@ class WideSuppressions(Iterable[Violation]):
     """
 
     _tool: str
-    _comment: Comment
+    _comment: Remark
 
     @override
     def __iter__(self) -> Iterator[Violation]:
         """Report every form of the comment that suppresses beyond its line."""
-        line, column = self._comment.token.start
         return (
             Violation(
                 self._tool,
                 "SUP003",
-                Place(
-                    str(self._comment.file), line, column + match.start() + 1
-                ),
+                place,
                 f"`# {match['kind']}` suppresses beyond its own line: "
                 "suppress on that one line instead, with a reason",
             )
-            for match in (_HEADER if self._comment.header else _WIDE).finditer(
-                self._comment.token.string,
+            for place, match in (
+                *self._comment.matches(_WIDE),
+                *self._comment.heading(_BARE),
             )
         )

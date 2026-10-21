@@ -7,8 +7,7 @@ from typing import final
 
 from typing_extensions import override
 
-from pytest_eo.comment import Comment
-from pytest_eo.place import Place
+from pytest_eo.remark import Remark
 from pytest_eo.violation import Violation
 
 _FORMS = (
@@ -39,21 +38,17 @@ class NarrowSuppressions(Iterable[Violation]):
     """
 
     _tool: str
-    _comment: Comment
+    _comment: Remark
     _forbidden: tuple[str, ...]
 
     @override
     def __iter__(self) -> Iterator[Violation]:
         """Report every suppression of the comment that breaks a rule."""
-        line, column = self._comment.token.start
-        for template, match in (
-            (template, match)
+        for template, place, match in (
+            (template, place, match)
             for form, template in _FORMS
-            for match in form.finditer(self._comment.token.string)
+            for place, match in self._comment.matches(form)
         ):
-            place = Place(
-                str(self._comment.file), line, column + match.start() + 1
-            )
             codes = tuple(code.strip() for code in match["codes"].split(","))
             listed = template.format(", ".join(codes))
             banned = tuple(
