@@ -87,11 +87,13 @@ exclude = ["generated/"]
 ## Usage
 
 ```sh
-pip install pytest-eo
+pip install 'pytest-eo @ git+https://github.com/RaulIQ/pytest-eo@0.2.0'
 pytest --eo
 ```
 
-Without `--eo` the plugin does nothing.
+Without `--eo` the plugin does nothing. Pin a tag, not a branch: every
+version of the rules is a version of the package, so pip installs new rules
+only when the tag in the requirement changes.
 
 ## Claude Code hooks
 
@@ -128,3 +130,11 @@ pyeo comes from the `integration` branch of the
 [RaulIQ/pyeo](https://github.com/RaulIQ/pyeo) fork, pinned by commit.
 `make bump-pyeo` pins it to the latest commit of that branch, reinstalls it
 and runs `make check`; commit the changed `pyproject.toml` afterwards.
+
+`pyproject.toml` on `main` always says `version = "0.0.0"`; a real version
+exists only in a tag. To release, comment `@rultor release, tag is 0.3.0` in
+any issue: Rultor writes the version into `pyproject.toml`, runs
+`make check`, commits the result on a side branch and pushes only the tag.
+Every change to the rules or the bundled configuration ships in a release:
+raise the minor number for a new or stricter rule and the patch number for a
+fix.
