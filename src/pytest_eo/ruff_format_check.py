@@ -19,7 +19,6 @@ class RuffFormatCheck(Check):
 
     command: Command
 
-    @property
     @override
     def name(self) -> str:
         """Short name shown in the pytest report."""
@@ -28,7 +27,7 @@ class RuffFormatCheck(Check):
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Parse the concise report of ``ruff format --check``."""
-        output = Verified(self.command, self.name, (0, 1)).run()
+        output = Verified(self.command, self.name(), (0, 1)).run()
         pattern = re.compile(
             r"^(?P<path>.+?):(?P<line>\d+):(?P<col>\d+): "
             r"(?P<code>\w+): (?P<msg>.+)$"
@@ -36,7 +35,7 @@ class RuffFormatCheck(Check):
         found = (pattern.match(line) for line in output.stdout.splitlines())
         return tuple(
             Violation(
-                tool=self.name,
+                tool=self.name(),
                 code=match["code"],
                 path=match["path"],
                 line=int(match["line"]),
