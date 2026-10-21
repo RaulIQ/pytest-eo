@@ -6,3 +6,12 @@ merge:
     python3 -m venv .venv
     .venv/bin/pip install -e '.[dev]'
     make check
+release:
+  script: |-
+    [[ "${tag}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Tag ${tag} is not a version like 1.2.3"; exit 1; }
+    sed -i -E "s/^version = \"[^\"]*\"$/version = \"${tag}\"/" pyproject.toml
+    grep -q "^version = \"${tag}\"$" pyproject.toml || { echo "Cannot set version ${tag} in pyproject.toml"; exit 1; }
+    python3 -m venv .venv
+    .venv/bin/pip install -e '.[dev]'
+    make check
+    git commit -am "${tag}"
