@@ -132,8 +132,14 @@ pyeo comes from the `integration` branch of the
 and runs `make check`; commit the changed `pyproject.toml` afterwards.
 
 `pyproject.toml` on `main` always says `version = "0.0.0"`; a real version
-exists only in a tag. To release, comment `@rultor release, tag is 0.3.0` in
-any issue: Rultor writes the version into `pyproject.toml`, runs
+exists only in a tag. To release, comment in any issue, with the version in
+backticks, since Rultor reads nothing else:
+
+```text
+@rultor release, tag is `0.3.0`
+```
+
+Rultor writes the version into `pyproject.toml`, runs
 `make check`, commits the result on a side branch and pushes only the tag.
 Every change to the rules or the bundled configuration ships in a release:
 raise the minor number for a new or stricter rule and the patch number for a
