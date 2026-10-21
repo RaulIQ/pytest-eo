@@ -26,7 +26,7 @@ class Margin(ast.NodeVisitor):  # noqa: ENC100 - a visitor holds no state, ast d
     @override
     def visit_FunctionDef(self, node: ast.FunctionDef) -> tuple[int, ...]:
         """Find the rows around a function."""
-        return tuple(Edges(node))
+        return tuple(Edges(node, node.decorator_list))
 
     @override
     def visit_AsyncFunctionDef(
@@ -34,9 +34,9 @@ class Margin(ast.NodeVisitor):  # noqa: ENC100 - a visitor holds no state, ast d
         node: ast.AsyncFunctionDef,
     ) -> tuple[int, ...]:
         """Find the rows around a coroutine."""
-        return tuple(Edges(node))
+        return tuple(Edges(node, node.decorator_list))
 
     @override
     def visit_ClassDef(self, node: ast.ClassDef) -> tuple[int, ...]:
         """Find the rows around a class."""
-        return tuple(Edges(node))
+        return tuple(Edges(node, node.decorator_list))
