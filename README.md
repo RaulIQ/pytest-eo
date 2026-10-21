@@ -15,25 +15,29 @@ separate test; its own rules cover only tests and suppressions.
 | `eo::flake8`      | `flake8` with [pyeo](https://pypi.org/project/eo-styleguide/) (Elegant Objects rules) |
 | `eo::suppressions`| `# noqa` and `# ruff: ignore` comments         |
 
-The pyeo rules enabled so far:
+The Elegant Objects rules enabled so far, most of them from
+[pyeo](https://github.com/blablatdinov/pyeo) and the rest from its sibling
+packages:
 
-| Code     | Rule                                         |
-|----------|----------------------------------------------|
-| `FIN100` | every class is `@final`                      |
-| `PEO101` | `__init__` contains only assignments         |
-| `PEO102` | `@classmethod` contains only a `cls()` call  |
-| `PEO200` | every class is frozen (immutable)            |
-| `PEO300` | no class names ending in "-er"               |
-| `PEO400` | no static methods                            |
-| `PEO500` | no `@property`, a getter in disguise         |
-| `PEO601` | no methods starting with `get`               |
-| `PEO602` | no getter methods                            |
-| `PEO700` | no introspection, casting, or reflection     |
-| `NPM100` | no private functions or methods              |
-| `OVR100` | every public method is an `@override` of an interface method ([flake8-override](https://github.com/blablatdinov/flake8-override)) |
+| Code     | Rule                                         | Package |
+|----------|----------------------------------------------|---------|
+| `FIN100` | every class is `@final`                      | pyeo    |
+| `PEO101` | `__init__` contains only assignments         | pyeo    |
+| `PEO102` | `@classmethod` contains only a `cls()` call  | pyeo    |
+| `PEO200` | every class is frozen (immutable)            | pyeo    |
+| `PEO300` | no class names ending in "-er"               | pyeo    |
+| `PEO400` | no static methods                            | pyeo    |
+| `PEO500` | no `@property`, a getter in disguise         | pyeo    |
+| `PEO601` | no methods starting with `get`               | pyeo    |
+| `PEO602` | no getter methods                            | pyeo    |
+| `PEO700` | no introspection, casting, or reflection     | pyeo    |
+| `NPM100` | no private functions or methods              | [flake8-no-private-methods](https://github.com/blablatdinov/flake8-no-private-methods) |
+| `OVR100` | every public method is an `@override` of an interface method | [flake8-override](https://github.com/blablatdinov/flake8-override) |
+| `FOC100` | one public class per module                  | [flake8-one-class](https://github.com/blablatdinov/flake8-one-class) |
 
-mypy runs with `explicit-override` on top of `--strict`, so an `@override`
-must override a real method and every overriding method must say so.
+mypy runs with `explicit-override` and `warn_unreachable` on top of
+`--strict`: an `@override` must override a real method, every overriding
+method must say so, and code that can never run is an error.
 Python 3.11 has no `typing.override`; import it from `typing_extensions`.
 
 The package also brings a flake8 plugin of its own, with rules in the spirit
@@ -53,11 +57,11 @@ tests too. PyHamcrest comes with the package:
 from hamcrest import assert_that, equal_to
 
 
-def test_reads_paths(tmp_path: Path) -> None:
+def test_checks_the_whole_directory_by_default(tmp_path: Path) -> None:
     assert_that(
-        Project(tmp_path).paths(),
+        Project(EoTable(tmp_path / "pyproject.toml"), tmp_path).paths(),
         equal_to((".",)),
-        "Project doesnt read paths",
+        "Project doesnt check the whole directory by default",
     )
 ```
 
