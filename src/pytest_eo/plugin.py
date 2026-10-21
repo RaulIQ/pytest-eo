@@ -34,8 +34,8 @@ def pytest_collection_modifyitems(
     items.extend(
         EoItem.from_parent(
             session,
-            name=check.name,
-            nodeid=f"eo::{check.name}",
+            name=check.name(),
+            nodeid=f"eo::{check.name()}",
             check=check,
         )
         for check in Strict(

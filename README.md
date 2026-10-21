@@ -25,6 +25,7 @@ The pyeo rules enabled so far:
 | `PEO200` | every class is frozen (immutable)            |
 | `PEO300` | no class names ending in "-er"               |
 | `PEO400` | no static methods                            |
+| `PEO500` | no `@property`, a getter in disguise         |
 | `PEO601` | no methods starting with `get`               |
 | `PEO602` | no getter methods                            |
 | `PEO700` | no introspection, casting, or reflection     |

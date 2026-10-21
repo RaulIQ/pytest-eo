@@ -8,7 +8,6 @@ from pytest_eo.violation import Violation
 class Check(Protocol):
     """A named source of violations."""
 
-    @property
     def name(self) -> str:
         """Short name shown in the pytest report."""
         ...

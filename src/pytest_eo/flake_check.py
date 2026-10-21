@@ -20,7 +20,6 @@ class FlakeCheck(Check):
 
     command: Command
 
-    @property
     @override
     def name(self) -> str:
         """Short name shown in the pytest report."""
@@ -29,14 +28,14 @@ class FlakeCheck(Check):
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Parse the default ``path:row:col: CODE text`` report of flake8."""
-        output = Verified(self.command, self.name, (0, 1)).run()
+        output = Verified(self.command, self.name(), (0, 1)).run()
         pattern = re.compile(
             r"^(?P<path>.+?):(?P<line>\d+):(?P<col>\d+): "
             r"(?P<code>[A-Z]+\d+) (?P<msg>.+)$"
         )
         found = tuple(
             Violation(
-                tool=self.name,
+                tool=self.name(),
                 code=match["code"],
                 path=match["path"],
                 line=int(match["line"]),

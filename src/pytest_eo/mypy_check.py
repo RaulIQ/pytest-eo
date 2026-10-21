@@ -19,7 +19,6 @@ class MypyCheck(Check):
 
     command: Command
 
-    @property
     @override
     def name(self) -> str:
         """Short name shown in the pytest report."""
@@ -28,14 +27,14 @@ class MypyCheck(Check):
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Parse one JSON object per line, skipping notes."""
-        output = Verified(self.command, self.name, (0, 1)).run()
+        output = Verified(self.command, self.name(), (0, 1)).run()
         lines = (
             line for line in output.stdout.splitlines() if line.startswith("{")
         )
         items = (json.loads(line) for line in lines)
         return tuple(
             Violation(
-                tool=self.name,
+                tool=self.name(),
                 code=item["code"] or "error",
                 path=item["file"],
                 line=item["line"],

@@ -130,6 +130,30 @@ def test_reports_reflection(pytester: pytest.Pytester) -> None:
     )
 
 
+def test_reports_properties(pytester: pytest.Pytester) -> None:
+    result = project(
+        pytester,
+        '"""A package with a getter in disguise."""\n'
+        "\n"
+        "from typing import final\n"
+        "\n"
+        "\n"
+        "@final\n"
+        "class Kettle:\n"
+        '    """Boils water."""\n'
+        "\n"
+        "    @property\n"
+        "    def volume(self) -> int:\n"
+        '        """Return how much it holds."""\n'
+        "        return 17\n",
+    ).runpytest_subprocess("--eo")
+    assert_that(
+        result.stdout.str(),
+        contains_string("tidy/box.py:11:5: [flake8:PEO500]"),
+        "a property doesnt fail the gate",
+    )
+
+
 def test_reports_private_methods(pytester: pytest.Pytester) -> None:
     result = project(
         pytester,

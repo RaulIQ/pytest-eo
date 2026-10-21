@@ -38,4 +38,4 @@ class EoItem(pytest.Item):  # noqa: PEO200 - pytest.Item is mutable by design
     @override
     def reportinfo(self) -> tuple[Path, int, str]:
         """Show ``eo::<tool>`` as the item location."""
-        return self.path, 0, f"eo::{self._check.name}"
+        return self.path, 0, f"eo::{self._check.name()}"

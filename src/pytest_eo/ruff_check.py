@@ -20,7 +20,6 @@ class RuffCheck(Check):
 
     command: Command
 
-    @property
     @override
     def name(self) -> str:
         """Short name shown in the pytest report."""
@@ -29,7 +28,7 @@ class RuffCheck(Check):
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Parse the JSON report of ``ruff check``."""
-        output = Verified(self.command, self.name, (0, 1)).run()
+        output = Verified(self.command, self.name(), (0, 1)).run()
         try:
             items = json.loads(output.stdout or "[]")
         except json.JSONDecodeError as error:
@@ -37,7 +36,7 @@ class RuffCheck(Check):
             raise ToolFailedError(message) from error
         return tuple(
             Violation(
-                tool=self.name,
+                tool=self.name(),
                 code=item["code"] or "syntax",
                 path=item["filename"],
                 line=item["location"]["row"],

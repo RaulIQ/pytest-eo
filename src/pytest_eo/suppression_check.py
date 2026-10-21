@@ -25,7 +25,6 @@ class SuppressionCheck(Check):
     sources: Files
     forbidden: tuple[str, ...]
 
-    @property
     @override
     def name(self) -> str:
         """Short name shown in the pytest report."""
@@ -39,7 +38,7 @@ class SuppressionCheck(Check):
             for file in self.sources.files()
             for comment in Comments(file)
             for found in (
-                *NarrowSuppressions(self.name, comment, self.forbidden),
-                *WideSuppressions(self.name, comment),
+                *NarrowSuppressions(self.name(), comment, self.forbidden),
+                *WideSuppressions(self.name(), comment),
             )
         )
