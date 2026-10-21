@@ -16,7 +16,7 @@ from pytest_eo.shared import Shared
 class ModuleConstants(Rule):
     """Values a test module assigns for its tests to share."""
 
-    tree: ast.Module
+    _tree: ast.Module
 
     @override
     def problems(self) -> Iterator[tuple[int, int, str]]:
@@ -27,6 +27,6 @@ class ModuleConstants(Rule):
                 statement.col_offset,
                 "TST200 test module must not share constants between its tests",
             )
-            for statement in self.tree.body
+            for statement in self._tree.body
             if Shared().visit(statement)
         )

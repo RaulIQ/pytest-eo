@@ -27,28 +27,28 @@ UNSUPPRESSIBLE = ("TID251", "banned-api")
 class Strict(Profile):
     """ruff, ruff format, ``mypy --strict``, pyeo and suppressions."""
 
-    layout: Layout
-    root: Path
+    _layout: Layout
+    _root: Path
 
     @override
     def checks(self) -> tuple[Check, ...]:
         """Build the checks; nothing runs until ``violations()`` is called."""
-        root = self.root
-        paths = self.layout.paths()
+        root = self._root
+        paths = self._layout.paths()
         skipped = tuple(
             arg
-            for pattern in self.layout.excludes()
+            for pattern in self._layout.excludes()
             for arg in ("--extend-exclude", pattern)
         )
         ruff_config = ("--config", str(Bundled("ruff.toml")), *skipped)
         flake_skipped = (
-            ("--extend-exclude", ",".join(self.layout.excludes()))
-            if self.layout.excludes()
+            ("--extend-exclude", ",".join(self._layout.excludes()))
+            if self._layout.excludes()
             else ()
         )
         mypy_skipped = tuple(
             arg
-            for pattern in self.layout.excludes()
+            for pattern in self._layout.excludes()
             for arg in ("--exclude", pattern)
         )
         return (
@@ -108,5 +108,5 @@ class Strict(Profile):
                     root,
                 ),
             ),
-            SuppressionCheck(ProjectFiles(self.layout, root), UNSUPPRESSIBLE),
+            SuppressionCheck(ProjectFiles(self._layout, root), UNSUPPRESSIBLE),
         )

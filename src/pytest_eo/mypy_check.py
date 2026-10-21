@@ -18,7 +18,7 @@ from pytest_eo.violation import Violation
 class MypyCheck(Check):
     """``mypy --strict`` with JSON output."""
 
-    command: Command
+    _command: Command
 
     @override
     def name(self) -> str:
@@ -28,7 +28,7 @@ class MypyCheck(Check):
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Parse one JSON object per line, skipping notes."""
-        output = Verified(self.command, self.name(), (0, 1)).run()
+        output = Verified(self._command, self.name(), (0, 1)).run()
         lines = (
             line for line in output.stdout.splitlines() if line.startswith("{")
         )

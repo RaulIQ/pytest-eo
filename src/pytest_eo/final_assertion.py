@@ -23,14 +23,14 @@ class FinalAssertion(Rule):
     may hold no other one.
     """
 
-    tree: ast.Module
+    _tree: ast.Module
 
     @override
     def problems(self) -> Iterator[tuple[int, int, str]]:
         """Report every test that doesnt end with its only assertion."""
         for test in (
             found
-            for node in ast.walk(self.tree)
+            for node in ast.walk(self._tree)
             for found in Trial().visit(node)
         ):
             count = sum(Assertion().visit(inner) for inner in ast.walk(test))

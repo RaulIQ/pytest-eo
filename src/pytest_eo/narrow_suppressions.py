@@ -38,30 +38,30 @@ class NarrowSuppressions(Iterable[Violation]):
     It reads ``# noqa: CODE`` and ``# ruff: ignore[CODE-OR-NAME]``.
     """
 
-    tool: str
-    comment: Comment
-    forbidden: tuple[str, ...]
+    _tool: str
+    _comment: Comment
+    _forbidden: tuple[str, ...]
 
     @override
     def __iter__(self) -> Iterator[Violation]:
         """Report every suppression of the comment that breaks a rule."""
-        line, column = self.comment.token.start
+        line, column = self._comment.token.start
         for template, match in (
             (template, match)
             for form, template in _FORMS
-            for match in form.finditer(self.comment.token.string)
+            for match in form.finditer(self._comment.token.string)
         ):
             place = Place(
-                str(self.comment.file), line, column + match.start() + 1
+                str(self._comment.file), line, column + match.start() + 1
             )
             codes = tuple(code.strip() for code in match["codes"].split(","))
             listed = template.format(", ".join(codes))
             banned = tuple(
-                code for code in codes if code.startswith(self.forbidden)
+                code for code in codes if code.startswith(self._forbidden)
             )
             if banned:
                 yield Violation(
-                    self.tool,
+                    self._tool,
                     "SUP002",
                     place,
                     f"{', '.join(banned)} cannot be suppressed: "
@@ -69,7 +69,7 @@ class NarrowSuppressions(Iterable[Violation]):
                 )
             if not _REASON.match(match["rest"]):
                 yield Violation(
-                    self.tool,
+                    self._tool,
                     "SUP001",
                     place,
                     f"`{listed}` needs a reason: "

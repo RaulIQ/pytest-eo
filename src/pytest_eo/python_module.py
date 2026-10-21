@@ -17,19 +17,19 @@ from pytest_eo.output import Output
 class PythonModule(Command):
     """``python -m <module> <args>`` in the interpreter that runs pytest."""
 
-    module: str
-    args: tuple[str, ...]
-    cwd: Path
+    _module: str
+    _args: tuple[str, ...]
+    _cwd: Path
 
     @override
     def run(self) -> Output:
         """Run the module and capture its output."""
-        argv = (sys.executable, "-m", self.module, *self.args)
+        argv = (sys.executable, "-m", self._module, *self._args)
         done = subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true] - argv is built from fixed tool names
             argv,
             capture_output=True,
             text=True,
             check=False,
-            cwd=self.cwd,
+            cwd=self._cwd,
         )
         return Output(done.stdout, done.stderr, done.returncode)

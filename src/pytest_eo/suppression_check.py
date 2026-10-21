@@ -22,8 +22,8 @@ class SuppressionCheck(Check):
     refuses the file-wide and range forms of ruff, flake8 and mypy outright.
     """
 
-    sources: Files
-    forbidden: tuple[str, ...]
+    _sources: Files
+    _forbidden: tuple[str, ...]
 
     @override
     def name(self) -> str:
@@ -35,10 +35,10 @@ class SuppressionCheck(Check):
         """Read the comments of every file, never running a tool."""
         return tuple(
             found
-            for file in self.sources.files()
+            for file in self._sources.files()
             for comment in Comments(file)
             for found in (
-                *NarrowSuppressions(self.name(), comment, self.forbidden),
+                *NarrowSuppressions(self.name(), comment, self._forbidden),
                 *WideSuppressions(self.name(), comment),
             )
         )

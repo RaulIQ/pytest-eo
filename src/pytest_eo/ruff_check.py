@@ -19,7 +19,7 @@ from pytest_eo.violation import Violation
 class RuffCheck(Check):
     """``ruff check`` with the locked configuration."""
 
-    command: Command
+    _command: Command
 
     @override
     def name(self) -> str:
@@ -29,7 +29,7 @@ class RuffCheck(Check):
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Parse the JSON report of ``ruff check``."""
-        output = Verified(self.command, self.name(), (0, 1)).run()
+        output = Verified(self._command, self.name(), (0, 1)).run()
         try:
             items = json.loads(output.stdout or "[]")
         except json.JSONDecodeError as error:

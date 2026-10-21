@@ -14,9 +14,9 @@ from pytest_eo.files import Files
 class FakeFiles(Files):
     """Files given directly, instead of searched for in a project."""
 
-    paths: tuple[Path, ...]
+    _paths: tuple[Path, ...]
 
     @override
     def files(self) -> tuple[Path, ...]:
         """Return the given files."""
-        return self.paths
+        return self._paths

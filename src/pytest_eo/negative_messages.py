@@ -23,7 +23,7 @@ _NEGATION = re.compile(
 class NegativeMessages(Rule):
     """Assertions whose message says what went wrong, such as "x doesnt y"."""
 
-    tree: ast.Module
+    _tree: ast.Module
 
     @override
     def problems(self) -> Iterator[tuple[int, int, str]]:
@@ -34,7 +34,7 @@ class NegativeMessages(Rule):
                 column,
                 "TST300 assertion must explain its failure with a negation",
             )
-            for node in ast.walk(self.tree)
+            for node in ast.walk(self._tree)
             for line, column, text in Message().visit(node)
             if not _NEGATION.search(text)
         )

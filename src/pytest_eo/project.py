@@ -15,16 +15,18 @@ from pytest_eo.table import Table
 class Project(Layout):
     """A directory checked as its settings say, or as its layout suggests."""
 
-    table: Table
-    root: Path
+    _table: Table
+    _root: Path
 
     @override
     def paths(self) -> tuple[str, ...]:
         """Directories to check: the configured ones or existing src/tests."""
         return (
-            self.table.strings("paths")
+            self._table.strings("paths")
             or tuple(
-                name for name in ("src", "tests") if (self.root / name).is_dir()
+                name
+                for name in ("src", "tests")
+                if (self._root / name).is_dir()
             )
             or (".",)
         )
@@ -32,4 +34,4 @@ class Project(Layout):
     @override
     def excludes(self) -> tuple[str, ...]:
         """Glob patterns to skip, as configured."""
-        return self.table.strings("exclude")
+        return self._table.strings("exclude")

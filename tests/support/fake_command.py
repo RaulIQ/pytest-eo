@@ -14,9 +14,9 @@ from pytest_eo.output import Output
 class FakeCommand(Command):
     """A command that prints what it was told to, without running anything."""
 
-    output: Output
+    _output: Output
 
     @override
     def run(self) -> Output:
         """Return the canned output."""
-        return self.output
+        return self._output

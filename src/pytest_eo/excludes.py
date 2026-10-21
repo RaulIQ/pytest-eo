@@ -13,7 +13,7 @@ from typing_extensions import override
 class Excludes(Container[str]):
     """Glob patterns and directories that a project leaves unchecked."""
 
-    patterns: tuple[str, ...]
+    _patterns: tuple[str, ...]
 
     @override
     def __contains__(self, path: object) -> bool:
@@ -21,5 +21,5 @@ class Excludes(Container[str]):
         return any(
             fnmatch(str(path), pattern)
             or str(path).startswith(pattern.rstrip("/") + "/")
-            for pattern in self.patterns
+            for pattern in self._patterns
         )

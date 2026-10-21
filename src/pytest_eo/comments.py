@@ -19,12 +19,12 @@ _SILENT = (tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE, tokenize.ENCODING)
 class Comments(Iterable[Comment]):
     """Every comment of a file, or none when the file cannot be tokenized."""
 
-    file: Path
+    _file: Path
 
     @override
     def __iter__(self) -> Iterator[Comment]:
         """Read the comments in order, telling the header from the rest."""
-        text = self.file.read_text(encoding="utf-8")
+        text = self._file.read_text(encoding="utf-8")
         try:
             tokens = tuple(
                 tokenize.generate_tokens(io.StringIO(text).readline),
@@ -36,4 +36,4 @@ class Comments(Iterable[Comment]):
         )
         for token in tokens:
             if token.type == tokenize.COMMENT:
-                yield Comment(self.file, token, header=token.start < code)
+                yield Comment(self._file, token, header=token.start < code)

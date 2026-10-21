@@ -14,9 +14,9 @@ from pytest_eo.table import Table
 class FakeTable(Table):
     """Settings given directly, instead of read from a file."""
 
-    entries: Mapping[str, tuple[str, ...]]
+    _entries: Mapping[str, tuple[str, ...]]
 
     @override
     def strings(self, key: str) -> tuple[str, ...]:
         """Return the given strings of the key, or none."""
-        return self.entries.get(key, ())
+        return self._entries.get(key, ())

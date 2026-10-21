@@ -16,24 +16,24 @@ from pytest_eo.layout import Layout
 class ProjectFiles(Files):
     """Python files under the checked paths of a layout, minus its excludes."""
 
-    layout: Layout
-    root: Path
+    _layout: Layout
+    _root: Path
 
     @override
     def files(self) -> tuple[Path, ...]:
         """Sorted ``*.py`` files under the checked paths, minus excludes."""
         found = (
             file
-            for path in self.layout.paths()
-            for file in (self.root / path).rglob("*.py")
+            for path in self._layout.paths()
+            for file in (self._root / path).rglob("*.py")
         )
-        excludes = Excludes(self.layout.excludes())
+        excludes = Excludes(self._layout.excludes())
         return tuple(
             sorted(
                 {
                     file
                     for file in found
-                    if file.relative_to(self.root).as_posix() not in excludes
+                    if file.relative_to(self._root).as_posix() not in excludes
                 },
             ),
         )

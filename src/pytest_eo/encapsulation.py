@@ -20,7 +20,7 @@ class Encapsulation(Extension):
     bag of procedures, more is a class that does too much.
     """
 
-    tree: ast.Module
+    tree: ast.Module  # noqa: PEO301 - flake8 passes it by this very name
 
     @override
     def run(self) -> Iterator[tuple[int, int, str, type[object]]]:

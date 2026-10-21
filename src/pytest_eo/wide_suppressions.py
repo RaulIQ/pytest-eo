@@ -25,22 +25,24 @@ class WideSuppressions(Iterable[Violation]):
     so there it counts as one of them.
     """
 
-    tool: str
-    comment: Comment
+    _tool: str
+    _comment: Comment
 
     @override
     def __iter__(self) -> Iterator[Violation]:
         """Report every form of the comment that suppresses beyond its line."""
-        line, column = self.comment.token.start
+        line, column = self._comment.token.start
         return (
             Violation(
-                self.tool,
+                self._tool,
                 "SUP003",
-                Place(str(self.comment.file), line, column + match.start() + 1),
+                Place(
+                    str(self._comment.file), line, column + match.start() + 1
+                ),
                 f"`# {match['kind']}` suppresses beyond its own line: "
                 "suppress on that one line instead, with a reason",
             )
-            for match in (_HEADER if self.comment.header else _WIDE).finditer(
-                self.comment.token.string,
+            for match in (_HEADER if self._comment.header else _WIDE).finditer(
+                self._comment.token.string,
             )
         )

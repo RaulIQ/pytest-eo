@@ -12,9 +12,9 @@ from typing_extensions import override
 class Bundled:
     """The path of a locked configuration that the gate hands to a tool."""
 
-    name: str
+    _name: str
 
     @override
     def __str__(self) -> str:
         """Show the path of the file inside the installed package."""
-        return str(resources.files("pytest_eo") / "config" / self.name)
+        return str(resources.files("pytest_eo") / "config" / self._name)

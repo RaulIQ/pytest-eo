@@ -19,7 +19,7 @@ from pytest_eo.violation import Violation
 class FlakeCheck(Check):
     """``flake8`` with pyeo: rules of Elegant Objects."""
 
-    command: Command
+    _command: Command
 
     @override
     def name(self) -> str:
@@ -29,7 +29,7 @@ class FlakeCheck(Check):
     @override
     def violations(self) -> tuple[Violation, ...]:
         """Parse the default ``path:row:col: CODE text`` report of flake8."""
-        output = Verified(self.command, self.name(), (0, 1)).run()
+        output = Verified(self._command, self.name(), (0, 1)).run()
         pattern = re.compile(
             r"^(?P<path>.+?):(?P<line>\d+):(?P<col>\d+): "
             r"(?P<code>[A-Z]+\d+) (?P<msg>.+)$"
