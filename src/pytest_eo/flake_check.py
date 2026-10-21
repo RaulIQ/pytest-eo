@@ -9,7 +9,6 @@ from typing_extensions import override
 from pytest_eo.check import Check
 from pytest_eo.command import Command
 from pytest_eo.place import Place
-from pytest_eo.tool_failed_error import ToolFailedError
 from pytest_eo.verified import Verified
 from pytest_eo.violation import Violation
 
@@ -41,12 +40,10 @@ class FlakeCheck(Check):
                 Place(match["path"], int(match["line"]), int(match["col"])),
                 match["msg"],
             )
-            for match in (
-                pattern.match(line) for line in output.stdout.splitlines()
-            )
+            for match in (pattern.match(line) for line in output)
             if match
         )
-        if output.status == 1 and not found:
-            message = f"flake8 failed without a report: {output.stderr.strip()}"
-            raise ToolFailedError(message)
+        if not found and output.exited((1,)):
+            reason = "flake8 failed without a report"
+            raise output.failure(reason)
         return found

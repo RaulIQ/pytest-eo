@@ -393,7 +393,7 @@ def test_reports_a_tool_that_cannot_run(pytester: pytest.Pytester) -> None:
     pytester.makepyprojecttoml('[tool.eo]\npaths = ["nowhere"]\n')
     assert_that(
         pytester.runpytest_subprocess("--eo").stdout.str(),
-        contains_string("tool failure: mypy exited with 2"),
+        contains_string("tool failure: mypy exited unexpectedly (status 2)"),
         "a tool that cannot run isnt reported as a tool failure",
     )
 

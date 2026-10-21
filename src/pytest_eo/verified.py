@@ -6,8 +6,7 @@ from typing import final
 from typing_extensions import override
 
 from pytest_eo.command import Command
-from pytest_eo.output import Output
-from pytest_eo.tool_failed_error import ToolFailedError
+from pytest_eo.printout import Printout
 
 
 @final
@@ -20,13 +19,10 @@ class Verified(Command):
     _allowed: tuple[int, ...]
 
     @override
-    def run(self) -> Output:
+    def run(self) -> Printout:
         """Run the command and fail on a status outside of the allowed ones."""
         output = self._origin.run()
-        if output.status not in self._allowed:
-            message = (
-                f"{self._tool} exited with {output.status}: "
-                f"{output.stderr.strip()}"
-            )
-            raise ToolFailedError(message)
+        if not output.exited(self._allowed):
+            reason = f"{self._tool} exited unexpectedly"
+            raise output.failure(reason)
         return output

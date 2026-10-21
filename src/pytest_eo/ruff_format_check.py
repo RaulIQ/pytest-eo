@@ -33,7 +33,7 @@ class RuffFormatCheck(Check):
             r"^(?P<path>.+?):(?P<line>\d+):(?P<col>\d+): "
             r"(?P<code>\w+): (?P<msg>.+)$"
         )
-        found = (pattern.match(line) for line in output.stdout.splitlines())
+        found = (pattern.match(line) for line in output)
         return tuple(
             Violation(
                 self.name(),

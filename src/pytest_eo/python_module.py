@@ -10,6 +10,7 @@ from typing_extensions import override
 
 from pytest_eo.command import Command
 from pytest_eo.output import Output
+from pytest_eo.printout import Printout
 
 
 @final
@@ -22,7 +23,7 @@ class PythonModule(Command):
     _cwd: Path
 
     @override
-    def run(self) -> Output:
+    def run(self) -> Printout:
         """Run the module and capture its output."""
         argv = (sys.executable, "-m", self._module, *self._args)
         done = subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true] - argv is built from fixed tool names

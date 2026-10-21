@@ -31,7 +31,7 @@ class RuffCheck(Check):
         """Parse the JSON report of ``ruff check``."""
         output = Verified(self._command, self.name(), (0, 1)).run()
         try:
-            items = json.loads(output.stdout or "[]")
+            items = json.loads("\n".join(output) or "[]")
         except json.JSONDecodeError as error:
             message = f"ruff printed invalid JSON: {error}"
             raise ToolFailedError(message) from error

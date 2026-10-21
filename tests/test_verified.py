@@ -17,5 +17,7 @@ def test_passes_the_output_of_an_allowed_status() -> None:
 
 def test_fails_loudly_on_a_status_nobody_expects() -> None:
     command = Verified(FakeCommand(Output("", "boom", 3)), "kraken", (0, 1))
-    with pytest.raises(ToolFailedError, match="kraken exited with 3: boom"):
+    with pytest.raises(
+        ToolFailedError, match=r"kraken exited unexpectedly \(status 3\): boom"
+    ):
         command.run()

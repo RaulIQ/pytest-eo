@@ -6,7 +6,7 @@ from typing import final
 from typing_extensions import override
 
 from pytest_eo.command import Command
-from pytest_eo.output import Output
+from pytest_eo.printout import Printout
 
 
 @final
@@ -14,9 +14,9 @@ from pytest_eo.output import Output
 class FakeCommand(Command):
     """A command that prints what it was told to, without running anything."""
 
-    _output: Output
+    _output: Printout
 
     @override
-    def run(self) -> Output:
+    def run(self) -> Printout:
         """Return the canned output."""
         return self._output
