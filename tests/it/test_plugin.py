@@ -183,6 +183,29 @@ def test_reports_a_class_with_too_many_attributes(
     )
 
 
+def test_reports_public_attributes(pytester: pytest.Pytester) -> None:
+    result = project(
+        pytester,
+        '"""A package with an object that shows its insides."""\n'
+        "\n"
+        "from dataclasses import dataclass\n"
+        "from typing import final\n"
+        "\n"
+        "\n"
+        "@final\n"
+        "@dataclass(frozen=True)\n"
+        "class Ticket:\n"
+        '    """Lets one in."""\n'
+        "\n"
+        "    seat: str\n",
+    ).runpytest_subprocess("--eo")
+    assert_that(
+        result.stdout.str(),
+        contains_string("tidy/box.py:12:5: [flake8:PEO301]"),
+        "a public attribute doesnt fail the gate",
+    )
+
+
 def test_reports_private_methods(pytester: pytest.Pytester) -> None:
     result = project(
         pytester,

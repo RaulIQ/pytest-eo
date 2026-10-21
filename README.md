@@ -26,6 +26,7 @@ packages:
 | `PEO102` | `@classmethod` contains only a `cls()` call  | pyeo    |
 | `PEO200` | every class is frozen (immutable)            | pyeo    |
 | `PEO300` | no class names ending in "-er"               | pyeo    |
+| `PEO301` | no public attributes                         | pyeo    |
 | `PEO400` | no static methods                            | pyeo    |
 | `PEO500` | no `@property`, a getter in disguise         | pyeo    |
 | `PEO601` | no methods starting with `get`               | pyeo    |
