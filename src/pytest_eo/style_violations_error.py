@@ -6,7 +6,7 @@ from typing_extensions import override
 
 
 @final
-class StyleViolationsError(Exception):
+class StyleViolationsError(Exception):  # noqa: ENC100 - an exception keeps its message in args
     """Raised by an item when its tool found violations; its args are them."""
 
     @override

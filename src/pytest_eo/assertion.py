@@ -11,7 +11,7 @@ from pytest_eo.callee import Callee
 
 @final
 @dataclass(frozen=True, slots=True)
-class Assertion(ast.NodeVisitor):
+class Assertion(ast.NodeVisitor):  # noqa: ENC100 - a visitor holds no state, ast dispatches on the node
     """Whether a node asserts, by a plain ``assert`` or by ``assert_that``."""
 
     @override

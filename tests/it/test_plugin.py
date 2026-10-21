@@ -154,6 +154,35 @@ def test_reports_properties(pytester: pytest.Pytester) -> None:
     )
 
 
+def test_reports_a_class_with_too_many_attributes(
+    pytester: pytest.Pytester,
+) -> None:
+    result = project(
+        pytester,
+        '"""A package with a class that holds too much."""\n'
+        "\n"
+        "from dataclasses import dataclass\n"
+        "from typing import final\n"
+        "\n"
+        "\n"
+        "@final\n"
+        "@dataclass(frozen=True)\n"
+        "class Parcel:\n"
+        '    """Travels by mail."""\n'
+        "\n"
+        "    sender: str\n"
+        "    receiver: str\n"
+        "    weight: int\n"
+        "    stamp: str\n"
+        "    route: str\n",
+    ).runpytest_subprocess("--eo")
+    assert_that(
+        result.stdout.str(),
+        contains_string("tidy/box.py:9:1: [flake8:ENC100]"),
+        "a class with five attributes doesnt fail the gate",
+    )
+
+
 def test_reports_private_methods(pytester: pytest.Pytester) -> None:
     result = project(
         pytester,

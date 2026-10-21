@@ -15,7 +15,7 @@ ignore = [
 ]
 
 # Codes checked by flake8: lets ruff accept them in "# noqa" comments.
-external = ["FIN", "PEO", "OVR", "FOC", "TST"]
+external = ["FIN", "PEO", "OVR", "FOC", "TST", "ENC"]
 
 [lint.per-file-ignores]
 "tests/**" = [

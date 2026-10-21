@@ -11,7 +11,7 @@ from pytest_eo.assertion import Assertion
 
 @final
 @dataclass(frozen=True, slots=True)
-class Ending(ast.NodeVisitor):
+class Ending(ast.NodeVisitor):  # noqa: ENC100 - a visitor holds no state, ast dispatches on the node
     """Whether a statement is an assertion that may close a test."""
 
     @override

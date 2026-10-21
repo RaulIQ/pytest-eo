@@ -12,7 +12,7 @@ from pytest_eo.text import Text
 
 @final
 @dataclass(frozen=True, slots=True)
-class Message(ast.NodeVisitor):
+class Message(ast.NodeVisitor):  # noqa: ENC100 - a visitor holds no state, ast dispatches on the node
     """The place and words of a failure message, and nothing for other nodes.
 
     A plain ``assert`` speaks through its message; ``assert_that`` speaks

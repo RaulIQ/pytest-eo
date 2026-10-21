@@ -9,7 +9,7 @@ from typing_extensions import override
 
 @final
 @dataclass(frozen=True, slots=True)
-class Callee(ast.NodeVisitor):
+class Callee(ast.NodeVisitor):  # noqa: ENC100 - a visitor holds no state, ast dispatches on the node
     """The source of the function a call goes to; nothing for other nodes."""
 
     @override

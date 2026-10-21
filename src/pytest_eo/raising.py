@@ -11,7 +11,7 @@ from pytest_eo.callee import Callee
 
 @final
 @dataclass(frozen=True, slots=True)
-class Raising(ast.NodeVisitor):
+class Raising(ast.NodeVisitor):  # noqa: ENC100 - a visitor holds no state, ast dispatches on the node
     """Whether a statement is a block under ``pytest.raises`` alone."""
 
     @override

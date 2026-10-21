@@ -6,7 +6,7 @@ from typing_extensions import override
 
 
 @final
-class ToolFailedError(RuntimeError):
+class ToolFailedError(RuntimeError):  # noqa: ENC100 - an exception keeps its message in args
     """A tool crashed or printed something we cannot understand."""
 
     @override

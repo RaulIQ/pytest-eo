@@ -9,7 +9,7 @@ from typing_extensions import override
 
 @final
 @dataclass(frozen=True, slots=True)
-class Text(ast.NodeVisitor):
+class Text(ast.NodeVisitor):  # noqa: ENC100 - a visitor holds no state, ast dispatches on the node
     """The literal words of an expression, and nothing for computed ones."""
 
     @override

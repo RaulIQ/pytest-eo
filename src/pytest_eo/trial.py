@@ -9,7 +9,7 @@ from typing_extensions import override
 
 @final
 @dataclass(frozen=True, slots=True)
-class Trial(ast.NodeVisitor):
+class Trial(ast.NodeVisitor):  # noqa: ENC100 - a visitor holds no state, ast dispatches on the node
     """A function whose name makes pytest run it; nothing for other nodes."""
 
     @override

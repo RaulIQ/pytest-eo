@@ -9,7 +9,7 @@ from typing_extensions import override
 
 @final
 @dataclass(frozen=True, slots=True)
-class Shared(ast.NodeVisitor):
+class Shared(ast.NodeVisitor):  # noqa: ENC100 - a visitor holds no state, ast dispatches on the node
     """Whether a statement assigns a module value besides ``pytest_plugins``."""
 
     @override

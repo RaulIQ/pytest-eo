@@ -49,6 +49,12 @@ of "Angry Tests" for the files pytest collects (`test_*.py`, `*_test.py`):
 | `TST200` | a test module keeps no constants, except `pytest_plugins` |
 | `TST300` | an assertion carries a negative message, such as `"x doesnt y"` |
 
+One more rule of its own covers every file, tests or not:
+
+| Code     | Rule                                                     |
+|----------|----------------------------------------------------------|
+| `ENC100` | a class encapsulates one to four attributes; a `Protocol` is exempt |
+
 As in Qulice, which rejects plain JUnit assertions, a test asserts through a
 Hamcrest matcher, never through a plain `assert`; ruff's `S101` stays on in
 tests too. PyHamcrest comes with the package:
