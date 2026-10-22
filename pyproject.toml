@@ -13,7 +13,7 @@ dependencies = [
     "ruff==0.17.1",
     "mypy==2.4.0",
     "flake8==7.4.1",
-    "eo-styleguide @ git+https://github.com/RaulIQ/pyeo@fd073aafa1b21144d66abc1e096f096029cbc321",
+    "eo-styleguide==0.2.0",
     "flake8-override==0.1.1",
     "typing_extensions>=4.4",
     "PyHamcrest>=2.1",
@@ -29,9 +29,6 @@ eo = "pytest_eo.plugin"
 TST = "pytest_eo.angry_tests:AngryTests"
 ENC = "pytest_eo.encapsulation:Encapsulation"
 BOD = "pytest_eo.bodies:Bodies"
-
-[tool.hatch.metadata]
-allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pytest_eo"]

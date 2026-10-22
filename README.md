@@ -140,11 +140,6 @@ merges on it. `make coverage` measures lines and branches, counting the
 pytest subprocesses of the end-to-end tests too, and writes `coverage.xml`,
 which GitHub Actions sends to Codecov on every push and pull request.
 
-pyeo comes from the `integration` branch of the
-[RaulIQ/pyeo](https://github.com/RaulIQ/pyeo) fork, pinned by commit.
-`make bump-pyeo` pins it to the latest commit of that branch, reinstalls it
-and runs `make check`; commit the changed `pyproject.toml` afterwards.
-
 `pyproject.toml` on `main` always says `version = "0.0.0"`; a real version
 exists only in a tag. To release, comment in any issue, with the version in
 backticks, since Rultor reads nothing else:
