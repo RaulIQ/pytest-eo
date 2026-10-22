@@ -101,13 +101,13 @@ exclude = ["generated/"]
 ## Usage
 
 ```sh
-pip install 'pytest-eo @ git+https://github.com/RaulIQ/pytest-eo@0.2.0'
+pip install 'pytest-eo==0.5.1'
 pytest --eo
 ```
 
-Without `--eo` the plugin does nothing. Pin a tag, not a branch: every
-version of the rules is a version of the package, so pip installs new rules
-only when the tag in the requirement changes.
+Without `--eo` the plugin does nothing. Pin an exact version: every version
+of the rules is a version of the package, so pip installs new rules only
+when the version in the requirement changes.
 
 ## Claude Code hooks
 
@@ -150,6 +150,8 @@ backticks, since Rultor reads nothing else:
 
 Rultor writes the version into `pyproject.toml`, runs
 `make check`, commits the result on a side branch and pushes only the tag.
+GitHub Actions builds that tag and uploads it to PyPI through Trusted
+Publishing, so no token is stored anywhere.
 Every change to the rules or the bundled configuration ships in a release:
 raise the minor number for a new or stricter rule and the patch number for a
 fix.

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
@@ -7,6 +7,9 @@ name = "pytest-eo"
 version = "0.0.0"
 description = "pytest --eo: strict style gate over ruff, mypy --strict and pyeo"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE.txt"]
+authors = [{ name = "RaulIQ" }]
 requires-python = ">=3.11"
 dependencies = [
     "pytest>=8",
