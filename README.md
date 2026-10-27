@@ -106,7 +106,7 @@ such as `box.state().to_msg()` stays one level deep.
 ## Usage
 
 ```sh
-pip install 'pytest-eo==0.5.1'
+pip install 'pytest-eo==0.6.0'
 pytest --eo
 ```
 
