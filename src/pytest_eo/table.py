@@ -9,3 +9,7 @@ class Table(Protocol):
     def strings(self, key: str) -> tuple[str, ...]:
         """Return the strings listed under the key, or none without them."""
         ...
+
+    def numbers(self, key: str) -> tuple[int, ...]:
+        """Return the integer set under the key, or none without one."""
+        ...

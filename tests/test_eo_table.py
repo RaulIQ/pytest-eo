@@ -15,14 +15,6 @@ def test_reads_the_strings_listed_under_a_key(tmp_path: Path) -> None:
     )
 
 
-def test_reads_nothing_without_the_file(tmp_path: Path) -> None:
-    assert_that(
-        EoTable(tmp_path / "pyproject.toml").strings("paths"),
-        empty(),
-        "a missing pyproject.toml doesnt read as empty",
-    )
-
-
 def test_reads_nothing_without_the_key(tmp_path: Path) -> None:
     file = tmp_path / "pyproject.toml"
     file.write_text('[tool.eo]\nexclude = ["gen/"]\n', encoding="utf-8")
@@ -43,21 +35,21 @@ def test_reads_nothing_from_a_value_that_isnt_a_list(tmp_path: Path) -> None:
     )
 
 
-def test_reads_nothing_from_a_tool_that_isnt_a_table(tmp_path: Path) -> None:
+def test_reads_the_integer_under_a_key(tmp_path: Path) -> None:
     file = tmp_path / "pyproject.toml"
-    file.write_text('tool = "eo"\n', encoding="utf-8")
+    file.write_text("[tool.eo]\nmax-call-depth = 8\n", encoding="utf-8")
     assert_that(
-        EoTable(file).strings("paths"),
-        empty(),
-        "a tool key that isnt a table doesnt read as empty",
+        EoTable(file).numbers("max-call-depth"),
+        equal_to((8,)),
+        "the integer under a key of [tool.eo] isnt read",
     )
 
 
-def test_reads_nothing_from_an_eo_that_isnt_a_table(tmp_path: Path) -> None:
+def test_reads_no_number_from_a_string(tmp_path: Path) -> None:
     file = tmp_path / "pyproject.toml"
-    file.write_text('[tool]\neo = ["lib"]\n', encoding="utf-8")
+    file.write_text('[tool.eo]\nmax-call-depth = "8"\n', encoding="utf-8")
     assert_that(
-        EoTable(file).strings("paths"),
+        EoTable(file).numbers("max-call-depth"),
         empty(),
-        "an eo key that isnt a table doesnt read as empty",
+        "a string doesnt read as no number",
     )

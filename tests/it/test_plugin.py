@@ -243,6 +243,36 @@ def test_reports_comments_in_a_function(pytester: pytest.Pytester) -> None:
     )
 
 
+def test_reports_calls_nested_too_deep(pytester: pytest.Pytester) -> None:
+    result = project(
+        pytester,
+        '"""A package that nests calls too deep."""\n'
+        "\n"
+        "TOTAL = abs(abs(abs(abs(abs(abs(abs(-1)))))))\n",
+    ).runpytest_subprocess("--eo")
+    assert_that(
+        result.stdout.str(),
+        contains_string("tidy/box.py:3:9: [flake8:NST100]"),
+        "calls nested seven deep dont fail the gate",
+    )
+
+
+def test_takes_the_call_depth_from_the_project(
+    pytester: pytest.Pytester,
+) -> None:
+    project(
+        pytester,
+        '"""A package that nests calls a little."""\n'
+        "\n"
+        "TOTAL = abs(abs(abs(-1)))\n",
+    ).makepyprojecttoml('[tool.eo]\npaths = ["src"]\nmax-call-depth = 2\n')
+    assert_that(
+        pytester.runpytest_subprocess("--eo").stdout.str(),
+        contains_string("tidy/box.py:3:9: [flake8:NST100]"),
+        "the call depth of the project doesnt reach the gate",
+    )
+
+
 def test_reports_private_methods(pytester: pytest.Pytester) -> None:
     result = project(
         pytester,

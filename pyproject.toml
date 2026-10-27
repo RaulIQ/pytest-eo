@@ -32,6 +32,7 @@ eo = "pytest_eo.plugin"
 TST = "pytest_eo.angry_tests:AngryTests"
 ENC = "pytest_eo.encapsulation:Encapsulation"
 BOD = "pytest_eo.bodies:Bodies"
+NST = "pytest_eo.nesting:Nesting"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pytest_eo"]

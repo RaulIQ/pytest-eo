@@ -57,6 +57,7 @@ More rules of its own cover every file, tests or not:
 | `ENC100` | a class encapsulates one to four attributes; a `Protocol` is exempt |
 | `BOD100` | a function body holds no blank lines, except around a nested `def` or `class` |
 | `BOD200` | a function body holds no comments, except suppressions |
+| `NST100` | an expression nests at most `max-call-depth` calls inside each other, 6 by default |
 
 As in Qulice, which rejects plain JUnit assertions, a test asserts through a
 Hamcrest matcher, never through a plain `assert`; ruff's `S101` stays on in
@@ -90,13 +91,17 @@ ruff already rejects a bare `# noqa` (`PGH004`), a bare `# type: ignore`
 
 The configuration is bundled with the package (`src/pytest_eo/config/`)
 and cannot be overridden by a project. A project may only say what to
-check and what to skip:
+check, what to skip, and how deep calls may nest:
 
 ```toml
 [tool.eo]
 paths = ["src", "tests"]    # default: src and tests, if they exist
 exclude = ["generated/"]
+max-call-depth = 6          # default: 6
 ```
+
+`NST100` counts calls nested through arguments only, so a chain of methods
+such as `box.state().to_msg()` stays one level deep.
 
 ## Usage
 

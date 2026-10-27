@@ -35,3 +35,8 @@ class Project(Layout):
     def excludes(self) -> tuple[str, ...]:
         """Glob patterns to skip, as configured."""
         return self._table.strings("exclude")
+
+    @override
+    def depth(self) -> tuple[int, ...]:
+        """How deep calls may nest, as configured."""
+        return self._table.numbers("max-call-depth")

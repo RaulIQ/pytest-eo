@@ -102,6 +102,10 @@ class Strict(Profile):
                     (
                         "--config",
                         str(Bundled("flake8.ini")),
+                        *(
+                            f"--max-call-depth={depth}"
+                            for depth in self._layout.depth()
+                        ),
                         *flake_skipped,
                         *paths,
                     ),
