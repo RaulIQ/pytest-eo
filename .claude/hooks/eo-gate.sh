@@ -25,9 +25,14 @@ print(value)
 
 event=$(field hook_event_name)
 if [ "$event" = "PostToolUse" ]; then
-  case "$(field tool_input.file_path)" in
-    *.py|*.toml|*.ini|*.cfg) ;;
-    *) exit 0 ;;
+  case "$(field tool_name)" in
+    *apply_patch) ;;
+    *)
+      case "$(field tool_input.file_path)" in
+        *.py|*.toml|*.ini|*.cfg) ;;
+        *) exit 0 ;;
+      esac
+      ;;
   esac
 fi
 

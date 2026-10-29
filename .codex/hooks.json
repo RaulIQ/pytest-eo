@@ -1,0 +1,29 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "(^|[.:])apply_patch$|^(Edit|Write|MultiEdit)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "root=$(git rev-parse --show-toplevel) && CLAUDE_PROJECT_DIR=\"$root\" bash \"$root/.claude/hooks/eo-gate.sh\"",
+            "timeout": 180,
+            "statusMessage": "pytest --eo"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "root=$(git rev-parse --show-toplevel) && CLAUDE_PROJECT_DIR=\"$root\" bash \"$root/.claude/hooks/eo-gate.sh\"",
+            "timeout": 180,
+            "statusMessage": "pytest --eo"
+          }
+        ]
+      }
+    ]
+  }
+}
